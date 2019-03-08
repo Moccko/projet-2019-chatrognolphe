@@ -11,11 +11,6 @@ export default class SignIn extends React.Component {
     password = "";
     pwdInput = undefined;
 
-    componentDidMount() {
-        console.log("hey hey", md5("hey hey").toString());
-        DB.collection('users').get().then(snapshot => snapshot.forEach(el => console.log(el.data().email)));
-    }
-
     _forgotPwd = () => {
         console.log('mdp oublié');
     };
@@ -51,19 +46,17 @@ export default class SignIn extends React.Component {
             <View style={styles.container}>
                 <KeyboardAvoidingView behavior="position">
                     <Text style={styles.title}>Connexion</Text>
-                    <Image source={{uri: "https://media.giphy.com/media/o0vwzuFwCGAFO/giphy.gif"}}
+                    <Image source={require("../assets/images/catTyping.gif")}
                            style={styles.image}/>
                     <Text style={styles.label}>Pseudo / email</Text>
                     <TextInput style={styles.input} onChangeText={text => this.username = text.toLowerCase()}
                                returnKeyType="next" onEndEditing={() => this.pwdInput.focus()} autoCapitalize="none"
-                               keyboardType="email-address"/>
-                    {/*onEndEditing={this._signIn} textContentType="username" returnKeyType="next"/>*/}
+                               keyboardType="email-address" textContentType="username"/>
 
                     <Text style={styles.label}>Mot de passe</Text>
                     <TextInput style={styles.input} onChangeText={text => this.password = md5(text).toString()}
                                secureTextEntry onEndEditing={this._signIn} returnKeyType="go"
-                               ref={ref => this.pwdInput = ref}/>
-                    {/*onEndEditing={this._signIn} textContentType="password" returnKeyType="go"/>*/}
+                               ref={ref => this.pwdInput = ref} textContentType="password"/>
 
                     <TouchableOpacity onPress={this._forgotPwd}>
                         <Text style={styles.forgotPwd}>Mot de passe oublié ?</Text>
