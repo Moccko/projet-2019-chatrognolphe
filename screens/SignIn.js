@@ -1,7 +1,9 @@
 import React from 'react';
-import {View, TouchableOpacity, Image, Text, TextInput, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, Image, Alert, Text, TextInput, StyleSheet} from 'react-native';
 
-// import DB from '../data/Database';
+import DB from '../data/Database';
+
+import md5 from 'crypto-js/md5';
 
 export default class SignIn extends React.Component {
 
@@ -9,6 +11,11 @@ export default class SignIn extends React.Component {
         username: '',
         password: ''
     };
+
+    componentDidMount() {
+        console.log("hey hey", md5("hey hey").toString());
+        DB.collection('users').get().then(snapshot => snapshot.forEach(el => console.log(el.data().email)));
+    }
 
     _forgotPwd = () => {
         console.log('mdp oublié');
