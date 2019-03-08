@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 import {View, TouchableOpacity, Image, Alert, Text, TextInput, KeyboardAvoidingView, StyleSheet} from 'react-native';
 
