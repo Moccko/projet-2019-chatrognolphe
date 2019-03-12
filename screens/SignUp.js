@@ -12,6 +12,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+import { Auth } from "../data/Database";
+import { DB } from "../data/Database";
+
 export default class SignUp extends React.Component {
   email = undefined;
   fname = undefined;
@@ -23,6 +26,30 @@ export default class SignUp extends React.Component {
   currentInput = 0;
 
   inputsRefs = [];
+
+  _signUp = () => {
+    //Gestion des champs erronés :
+
+    //Insertion bdd :
+    var addDoc = DB.collection("users")
+      .add({
+        bday: this.bday,
+        email: this.email,
+        fname: this.fname,
+        lname: this.lname,
+        nickname: "apres",
+        phone: "apres",
+        pwd: this.pwd,
+        sex: "0"
+      })
+      .then(ref => {
+        console.log("Added document with ID: ", ref.id);
+      });
+    //Insertion base authentification
+    Auth.createUserWithEmailAndPassword(this.email, this.pwd).catch(error =>
+      console.error(error)
+    );
+  };
 
   onRef = ref => {
     this.inputsRefs.push(ref);
@@ -110,7 +137,7 @@ export default class SignUp extends React.Component {
 
           {this.inputs.map(this.renderInput)}
 
-          <TouchableOpacity style={styles.btnPrimary}>
+          <TouchableOpacity style={styles.btnPrimary} onPress={this._signUp}>
             <Text style={styles.btnPrimaryLb}>Créer le compte</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>

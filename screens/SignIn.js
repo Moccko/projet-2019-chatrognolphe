@@ -10,7 +10,7 @@ import {
   StyleSheet
 } from "react-native";
 
-import DB from "../data/Database";
+import { DB } from "../data/Database";
 
 import md5 from "crypto-js/md5";
 
