@@ -20,10 +20,9 @@ export default class SignIn extends React.Component {
         DB.collection('users')
             .where('nickname', '==', this.username)
             .where('pwd', '==', this.password)
-            .get()
-            .then(snapshot => {
+            .onSnapshot(snapshot => {
                 if (!snapshot.empty)
-                    snapshot.forEach(u => console.log(u.data()));
+                    snapshot.forEach(user => console.log(user.data()));
                 else
                     DB.collection('users')
                         .where('email', '==', this.username)
