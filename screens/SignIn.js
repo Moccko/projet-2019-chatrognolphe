@@ -136,7 +136,8 @@ const styles = StyleSheet.create({
   },
   signInLabel: {
     textAlign: "center",
-    color: "white"
+    color: "white",
+    textTransform: "uppercase"
   },
   signUp: {
     backgroundColor: "#fff",
@@ -148,6 +149,7 @@ const styles = StyleSheet.create({
   },
   signUpLabel: {
     textAlign: "center",
-    color: primaryColor
+    color: primaryColor,
+    textTransform: "uppercase"
   }
 });
