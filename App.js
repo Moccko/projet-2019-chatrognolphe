@@ -1,14 +1,13 @@
 import React from "react";
 import { StyleSheet, SafeAreaView, Dimensions } from "react-native";
 
-import SignIn from "./screens/SignIn";
-import SignUp from "./screens/SignUp";
+import RecentMessages from "./screens/RecentMessages";
 
 export default class App extends React.Component {
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <SignUp />
+        <RecentMessages />
       </SafeAreaView>
     );
   }

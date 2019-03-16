@@ -6,8 +6,8 @@ export default class Icon extends React.Component {
   render() {
     return (
       <Ionicons
-        name={`${Platform.OS === "ios" ? "ios" : "md"}-${this.props.name}`}
         {...this.props}
+        name={`${Platform.OS === "ios" ? "ios" : "md"}-${this.props.name}`}
       />
     );
   }
