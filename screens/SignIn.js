@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   KeyboardAvoidingView,
+  SafeAreaView,
   StyleSheet
 } from "react-native";
 
@@ -27,7 +28,8 @@ export default class SignIn extends React.Component {
     DB.collection("users")
       .where("nickname", "==", this.username)
       .where("pwd", "==", this.password)
-      .onSnapshot(snapshot => {
+      .get()
+      .then(snapshot => {
         if (!snapshot.empty) snapshot.forEach(user => console.log(user.data()));
         else
           DB.collection("users")
@@ -39,17 +41,17 @@ export default class SignIn extends React.Component {
               else Alert.alert("Erreur", "Utilisateur introuvable");
             });
       });
+    this.props.navigation.navigate("RecentMessages");
   };
 
   _signUp = () => {
-    console.log("sign up");
+    this.props.navigation.navigate("SignUp");
   };
 
   render() {
     return (
-      <View style={styles.container}>
-        <KeyboardAvoidingView behavior="position">
-          <Text style={styles.title}>Connexion</Text>
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={100}>
           <Image
             source={require("../assets/images/catTyping.gif")}
             style={styles.image}
@@ -61,6 +63,9 @@ export default class SignIn extends React.Component {
             returnKeyType="next"
             onEndEditing={() => this.pwdInput.focus()}
             autoCapitalize="none"
+            placeholder="an@nymo.us"
+            placeholderTextColor="#555"
+            keyboardAppearance="dark"
             keyboardType="email-address"
             textContentType="username"
           />
@@ -73,6 +78,9 @@ export default class SignIn extends React.Component {
             onEndEditing={this._signIn}
             returnKeyType="go"
             ref={ref => (this.pwdInput = ref)}
+            placeholder="Tu devineras jamais"
+            placeholderTextColor="#555"
+            keyboardAppearance="dark"
             textContentType="password"
           />
 
@@ -81,29 +89,27 @@ export default class SignIn extends React.Component {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.signIn} onPress={this._signIn}>
-            <Text style={styles.signInLabel}>CONNEXION</Text>
+            <Text style={styles.signInLabel}>Entrer dans la matrice</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.signUp} onPress={this._signUp}>
-            <Text style={styles.signUpLabel}>S'INSCRIRE</Text>
+            <Text style={styles.signUpLabel}>Devenir un hacker</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
-      </View>
+      </SafeAreaView>
     );
   }
 }
 
-const primaryColor = "#ff09a3";
+// const primaryColor = "#ff09a3";
+const primaryColor = "lime";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center"
-  },
-  title: {
-    textAlign: "center",
-    margin: 20,
-    fontSize: 36
+    backgroundColor: "black",
+    justifyContent: "center",
+    alignItems: "center"
   },
   image: {
     width: 200,
@@ -113,10 +119,14 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     marginTop: 15,
-    marginBottom: 5
+    marginBottom: 5,
+    color: "lime",
+    fontFamily: "source-code-pro"
   },
   input: {
-    borderColor: "black",
+    borderColor: "lime",
+    color: "lime",
+    fontFamily: "source-code-pro",
     borderBottomWidth: 1,
     borderStyle: "solid",
     width: 280,
@@ -125,7 +135,8 @@ const styles = StyleSheet.create({
   forgotPwd: {
     color: primaryColor,
     textAlign: "center",
-    padding: 10
+    padding: 10,
+    fontFamily: "source-code-pro"
   },
   signIn: {
     backgroundColor: primaryColor,
@@ -136,11 +147,12 @@ const styles = StyleSheet.create({
   },
   signInLabel: {
     textAlign: "center",
-    color: "white",
-    textTransform: "uppercase"
+    // color: "white",
+    textTransform: "uppercase",
+    fontFamily: "source-code-pro"
   },
   signUp: {
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
     borderRadius: 5,
     padding: 13,
     borderColor: primaryColor,
@@ -150,6 +162,7 @@ const styles = StyleSheet.create({
   signUpLabel: {
     textAlign: "center",
     color: primaryColor,
-    textTransform: "uppercase"
+    textTransform: "uppercase",
+    fontFamily: "source-code-pro"
   }
 });

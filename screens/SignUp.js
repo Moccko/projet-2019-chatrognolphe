@@ -7,8 +7,9 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  Dimensions,
-  KeyboardAvoidingView
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Alert
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -46,9 +47,13 @@ export default class SignUp extends React.Component {
         console.log("Added document with ID: ", ref.id);
       });
     //Insertion base authentification
-    Auth.createUserWithEmailAndPassword(this.email, this.pwd).catch(error =>
-      console.error(error)
-    );
+    Auth.createUserWithEmailAndPassword(this.email, this.pwd)
+      .then(() => this.props.navigation.navigate("RecentMessages"))
+      .catch(error => Alert.alert(error));
+  };
+
+  _signIn = () => {
+    this.props.navigation.navigate("SignIn");
   };
 
   onRef = ref => {
@@ -66,37 +71,43 @@ export default class SignUp extends React.Component {
       label: "Adresse email",
       name: "email",
       type: "email-address",
-      capitalize: "none"
+      capitalize: "none",
+      placeholder: "an@nymo.us"
     },
     {
       label: "Prénom",
       name: "fname",
       type: "default",
-      capitalize: "words"
+      capitalize: "words",
+      placeholder: "Mickaël"
     },
     {
       label: "Nom",
       name: "lname",
       type: "default",
-      capitalize: "words"
+      capitalize: "words",
+      placeholder: "Vendetta"
     },
     {
       label: "Date de naissance",
       name: "bday",
       type: "default",
-      capitalize: "sentences"
+      capitalize: "sentences",
+      placeholder: "11/09/2001"
     },
     {
       label: "Mot de passe",
       name: "pwd",
       type: "password",
-      capitalize: "none"
+      capitalize: "none",
+      placeholder: "Les dés sont jetés"
     },
     {
       label: "Confirmer le mot de passe",
       name: "confirmPwd",
       type: "password",
-      capitalize: "none"
+      capitalize: "none",
+      placeholder: "Hasta la vista baby"
     }
   ];
 
@@ -111,6 +122,9 @@ export default class SignUp extends React.Component {
         returnKeyType={index === arr.length - 1 ? "go" : "next"}
         onEndEditing={index === arr.length - 1 ? this.submit : this.goNext}
         // blurOnSubmit={index === arr.length - 1}
+        placeholder={input.placeholder}
+        placeholderTextColor="#555"
+        keyboardAppearance="dark"
         keyboardType={input.type === "email-address" ? input.type : "default"}
       />
     </View>
@@ -118,76 +132,74 @@ export default class SignUp extends React.Component {
 
   render() {
     return (
-      <ScrollView style={styles.container}>
-        <KeyboardAvoidingView behavior="position">
-          <Text style={styles.title}>Inscription</Text>
-          <TouchableOpacity style={[styles.btn, styles.btnSecondary]}>
-            <Text style={styles.btnSecondaryLb}>J'ai déjà un compte</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, styles.btnFb]}>
-            <Ionicons
-              name="logo-facebook"
-              color="white"
-              size={20}
-              style={{ marginRight: 10 }}
-            />
-            <Text style={styles.btnFbLb}>Se connecter avec facebook</Text>
-          </TouchableOpacity>
-          <Text style={styles.h2}>Mes informations</Text>
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <KeyboardAvoidingView behavior="position">
+            <TouchableOpacity
+              style={[styles.btn, styles.btnSecondary]}
+              onPress={this._signIn}
+            >
+              <Text style={styles.btnSecondaryLb}>Je suis déjà un hacker</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.btn, styles.btnFb]}>
+              <Ionicons
+                name="logo-facebook"
+                color="#3b5998"
+                size={20}
+                style={{ marginRight: 10 }}
+              />
+              <Text style={styles.btnFbLb}>Hacker Facebook</Text>
+            </TouchableOpacity>
+            <Text style={styles.h2}>Mes informations (cryptées)</Text>
 
-          {this.inputs.map(this.renderInput)}
+            {this.inputs.map(this.renderInput)}
 
-          <TouchableOpacity style={styles.btnPrimary} onPress={this._signUp}>
-            <Text style={styles.btnPrimaryLb}>Créer le compte</Text>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </ScrollView>
+            <TouchableOpacity style={styles.btnPrimary} onPress={this._signUp}>
+              <Text style={styles.btnPrimaryLb}>Devenir un hacker</Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 }
 
-const primaryColor = "#ff09a3";
+// const primaryColor = "#ff09a3";
+const primaryColor = "lime";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: Dimensions.get("window").width,
-    paddingLeft: 25,
-    paddingRight: 25
+    backgroundColor: "black"
   },
-  title: {
-    textAlign: "center",
-    margin: 20,
-    fontSize: 36
+  scrollContainer: {
+    // flex: 1,
+    alignItems: "center",
+    paddingLeft: 25,
+    paddingRight: 25,
+    backgroundColor: "black"
   },
   h2: {
-    margin: 20,
-    fontSize: 30
-  },
-  image: {
-    width: 200,
-    height: 200,
-    alignSelf: "center"
+    textAlign: "center",
+    fontSize: 28,
+    fontFamily: "source-code-pro",
+    color: primaryColor
   },
   label: {
     fontSize: 15,
     marginTop: 15,
-    marginBottom: 5
+    marginBottom: 5,
+    fontFamily: "source-code-pro",
+    color: primaryColor
   },
   input: {
-    borderColor: "black",
+    borderColor: primaryColor,
     borderBottomWidth: 1,
     borderStyle: "solid",
     width: 280,
-    height: 40
-  },
-  forgotPwd: {
-    color: primaryColor,
-    textAlign: "center",
-    padding: 10
-  },
-  btn: {
-    margin: 3
+    height: 40,
+    fontFamily: "source-code-pro",
+    color: primaryColor
   },
   btnPrimary: {
     backgroundColor: primaryColor,
@@ -198,33 +210,40 @@ const styles = StyleSheet.create({
   },
   btnPrimaryLb: {
     textAlign: "center",
-    color: "white",
-    textTransform: "uppercase"
+    textTransform: "uppercase",
+    fontFamily: "source-code-pro",
+    color: "black"
   },
   btnSecondary: {
-    backgroundColor: "#fff",
     borderRadius: 5,
     padding: 13,
     borderColor: primaryColor,
     borderStyle: "solid",
-    borderWidth: 2
+    borderWidth: 2,
+    marginTop: 15,
+    marginBottom: 5
   },
   btnSecondaryLb: {
     textAlign: "center",
-    color: primaryColor,
-    textTransform: "uppercase"
+    textTransform: "uppercase",
+    fontFamily: "source-code-pro",
+    color: primaryColor
   },
   btnFb: {
     flexDirection: "row",
-    backgroundColor: "#3b5998",
+    // backgroundColor: "#3b5998",
+    padding: 13,
+    borderColor: "#3b5998",
+    borderStyle: "solid",
+    borderWidth: 2,
     borderRadius: 5,
-    padding: 15,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    marginBottom: 15
   },
   btnFbLb: {
     textAlign: "center",
-    color: "white",
-    textTransform: "uppercase"
+    textTransform: "uppercase",
+    color: "#3b5998"
   }
 });
