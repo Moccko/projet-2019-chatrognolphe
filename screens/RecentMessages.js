@@ -1,8 +1,15 @@
 // TODO : FlatList won't update with the right content
 import React from "react";
-import { View, Text, FlatList, Dimensions, StyleSheet } from "react-native";
+import {
+  View,
+  FlatList,
+  Dimensions,
+  StyleSheet,
+  StatusBar
+} from "react-native";
 import ConversationItem from "../components/ConversationItem";
 import { DB } from "../data/Database";
+import { SafeAreaView } from "react-navigation";
 
 export default class RecentMessages extends React.Component {
   state = {
@@ -10,22 +17,44 @@ export default class RecentMessages extends React.Component {
   };
 
   componentDidMount() {
-    DB.collection("channels").onSnapshot(snapshot => {
+    // Listen to updates on conversations
+    this.channelsListener = DB.collection("channels").onSnapshot(snapshot => {
       const conversations = [];
-      snapshot.forEach(conversation => conversations.push(conversation.data()));
+      snapshot.forEach(conversation => {
+        const c = conversation.data();
+        c.id = conversation.id;
+        conversations.push(c);
+      });
       this.setState({ conversations: conversations });
     });
   }
 
+  componentWillUnmount() {
+    // Detach the listener
+    this.channelsListener();
+  }
+
   render() {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" />
         <FlatList
           data={this.state.conversations}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => <ConversationItem conversation={item} />}
+          ItemSeparatorComponent={() => (
+            <View
+              style={{
+                height: 1,
+                // width: "86%",
+                // backgroundColor: "#CED0CE"
+                backgroundColor: "#555"
+                // marginLeft: "14%"
+              }}
+            />
+          )}
         />
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -36,6 +65,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: Dimensions.get("window").width,
-    justifyContent: "center"
+    justifyContent: "center",
+    backgroundColor: "black"
   }
 });

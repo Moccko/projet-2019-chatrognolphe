@@ -1,22 +1,20 @@
 import React from "react";
-import { StyleSheet, SafeAreaView, Dimensions } from "react-native";
-
-import RecentMessages from "./screens/RecentMessages";
+import Navigation from "./navigation/Navigation";
+import { Font } from "expo";
+import SignUp from "./screens/SignUp";
 
 export default class App extends React.Component {
+  state = {
+    fontLoaded: false
+  };
+
+  componentWillMount() {
+    Font.loadAsync({
+      "source-code-pro": require("./assets/fonts/SourceCodePro-Regular.ttf")
+    }).then(() => this.setState({ fontLoaded: true }));
+  }
+
   render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <RecentMessages />
-      </SafeAreaView>
-    );
+    return this.state.fontLoaded && <Navigation />;
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center"
-  }
-});
