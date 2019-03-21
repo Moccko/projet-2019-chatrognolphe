@@ -2,6 +2,7 @@
 import React from "react";
 import {
   View,
+  Text,
   FlatList,
   Dimensions,
   StyleSheet,
@@ -10,8 +11,9 @@ import {
 import ConversationItem from "../components/ConversationItem";
 import { DB } from "../data/Database";
 import { SafeAreaView } from "react-navigation";
+import { connect } from "react-redux";
 
-export default class RecentMessages extends React.Component {
+class RecentMessages extends React.Component {
   state = {
     conversations: []
   };
@@ -58,6 +60,11 @@ export default class RecentMessages extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  user: state.user
+});
+export default connect(mapStateToProps)(RecentMessages);
 
 const primaryColor = "#ff09a3";
 

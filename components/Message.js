@@ -1,21 +1,41 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Image, Text, StyleSheet } from "react-native";
+import { connect } from "react-redux";
 
-export default class Message extends React.Component {
+class Message extends React.Component {
   render() {
-    const { message } = this.props;
+    const { message, user, style, currentUser } = this.props;
 
     return (
       message && (
-        <View style={[styles.message, styles[this.props.style]]}>
-          <Text style={[styles[`${this.props.style}Label`], styles.label]}>
-            {message.content}
+        <View
+          style={[
+            styles.message,
+            styles[message.sender === currentUser.id ? "sender" : "receiver"]
+          ]}
+        >
+          <Text style={[styles[`${style}Label`], styles.label]}>
+            {`${
+              user && user.nickname ? user.nickname : user.fname.toLowerCase()
+            }$ ${message.content}`}
           </Text>
         </View>
       )
     );
   }
 }
+
+const mapStateToProps = state => ({
+  currentUser: state.user
+});
+
+export default connect(mapStateToProps)(Message);
+
+const white = "white";
+const black = "black";
+const darkGrey = "#333";
+const lightGrey = "#555";
+const primaryColor = "lime";
 
 const styles = StyleSheet.create({
   message: {
@@ -25,21 +45,26 @@ const styles = StyleSheet.create({
   },
   sender: {
     // height: 75,
-    backgroundColor: "#555",
+    backgroundColor: lightGrey,
     alignSelf: "flex-end"
   },
   label: {
-    color: "white",
     fontFamily: "source-code-pro"
   },
   senderLabel: {
+    color: white,
     textAlign: "right"
   },
   receiver: {
-    backgroundColor: "green",
+    backgroundColor: primaryColor,
     alignSelf: "flex-start"
   },
   receiverLabel: {
+    color: "black",
     textAlign: "left"
+  },
+  nameLabel: {
+    color: primaryColor,
+    textAlign: "center"
   }
 });

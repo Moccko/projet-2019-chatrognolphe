@@ -3,9 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "../components/Icon";
 import Moment from "moment";
 import { withNavigation } from "react-navigation";
+import { connect } from "react-redux";
 
 class ConversationItem extends React.Component {
-  users = [];
+  users = {};
 
   state = {
     creation: "",
@@ -16,20 +17,24 @@ class ConversationItem extends React.Component {
   onPress = () => {
     this.props.navigation.navigate("Conversation", {
       title: this.state.users,
-      id: this.props.conversation.id
+      id: this.props.conversation.id,
+      users: this.users
     });
   };
 
   componentDidMount() {
     const { conversation } = this.props;
 
-    conversation.users.forEach((u, i) =>
+    conversation.users.forEach(u =>
       u.get().then(user => {
-        this.users = [...this.users, user.data().fname];
+        this.users[user.id] = { id: user.id, ...user.data() };
         this.setState({
-          users: this.users.reduce(
-            (acc, val, ind) => `${acc}${ind === 0 ? "" : ", "}${val}`
-          )
+          users: Object.values(this.users)
+            .filter(val => val.id !== this.props.user.id)
+            .reduce(
+              (acc, val, ind) => `${acc}${ind === 0 ? "" : ", "}${val.fname}`,
+              ""
+            )
         });
       })
     );
@@ -63,7 +68,11 @@ class ConversationItem extends React.Component {
   }
 }
 
-export default withNavigation(ConversationItem);
+const mapStateToProps = state => {
+  return { user: state.user };
+};
+
+export default connect(mapStateToProps)(withNavigation(ConversationItem));
 
 // const primaryColor = "#ff09a3";
 const primaryColor = "lime";

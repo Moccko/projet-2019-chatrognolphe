@@ -13,5 +13,6 @@ const config = {
 
 module.exports = {
   DB: firebase.initializeApp(config).firestore(),
+  Admin: firebase.firestore,
   Auth: firebase.auth()
 };

@@ -10,12 +10,11 @@ import {
   SafeAreaView,
   StyleSheet
 } from "react-native";
-
-import { DB } from "../data/Database";
-
+import { DB, Auth } from "../data/Database";
 import md5 from "crypto-js/md5";
+import { connect } from "react-redux";
 
-export default class SignIn extends React.Component {
+class SignIn extends React.Component {
   username = "";
   password = "";
   pwdInput = undefined;
@@ -24,24 +23,35 @@ export default class SignIn extends React.Component {
     console.log("mdp oublié");
   };
 
+  storeUser = user => {
+    const u = {
+      id: user.id,
+      ...user.data()
+    };
+    const action = { type: "LOG_IN", value: u };
+    this.props.dispatch(action);
+    this.props.navigation.navigate("RecentMessages");
+  };
+
   _signIn = () => {
     DB.collection("users")
       .where("nickname", "==", this.username)
       .where("pwd", "==", this.password)
       .get()
       .then(snapshot => {
-        if (!snapshot.empty) snapshot.forEach(user => console.log(user.data()));
-        else
+        if (!snapshot.empty) {
+          snapshot.forEach(this.storeUser);
+        } else {
           DB.collection("users")
             .where("email", "==", this.username)
             .where("pwd", "==", this.password)
             .get()
             .then(snapshot => {
-              if (!snapshot.empty) snapshot.forEach(u => console.log(u.data()));
+              if (!snapshot.empty) snapshot.forEach(this.storeUser);
               else Alert.alert("Erreur", "Utilisateur introuvable");
             });
+        }
       });
-    this.props.navigation.navigate("RecentMessages");
   };
 
   _signUp = () => {
@@ -56,6 +66,7 @@ export default class SignIn extends React.Component {
             source={require("../assets/images/catTyping.gif")}
             style={styles.image}
           />
+
           <Text style={styles.label}>Pseudo / email</Text>
           <TextInput
             style={styles.input}
@@ -78,7 +89,7 @@ export default class SignIn extends React.Component {
             onEndEditing={this._signIn}
             returnKeyType="go"
             ref={ref => (this.pwdInput = ref)}
-            placeholder="Tu devineras jamais"
+            placeholder="Incrackable"
             placeholderTextColor="#555"
             keyboardAppearance="dark"
             textContentType="password"
@@ -101,13 +112,16 @@ export default class SignIn extends React.Component {
   }
 }
 
+export default connect()(SignIn);
+
 // const primaryColor = "#ff09a3";
 const primaryColor = "lime";
+const black = "black";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: black,
     justifyContent: "center",
     alignItems: "center"
   },
@@ -120,12 +134,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 15,
     marginBottom: 5,
-    color: "lime",
+    color: primaryColor,
     fontFamily: "source-code-pro"
   },
   input: {
-    borderColor: "lime",
-    color: "lime",
+    borderColor: primaryColor,
+    color: primaryColor,
     fontFamily: "source-code-pro",
     borderBottomWidth: 1,
     borderStyle: "solid",

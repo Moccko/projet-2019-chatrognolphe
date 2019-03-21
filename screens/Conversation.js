@@ -8,41 +8,33 @@ import {
   TouchableOpacity,
   TextInput,
   KeyboardAvoidingView,
+  SafeAreaView,
+  Alert,
   StyleSheet
 } from "react-native";
-import { SafeAreaView } from "react-navigation";
-import { DB } from "../data/Database";
+import { DB, Admin } from "../data/Database";
 import Message from "../components/Message";
 import Icon from "../components/Icon";
 import Moment from "moment";
+import { connect } from "react-redux";
 
-export default class Conversation extends React.Component {
+class Conversation extends React.Component {
   inputRef = undefined;
 
   state = {
     conversation: {},
-    input: ""
-  };
-
-  send = () => {
-    const { input } = this.state;
-    if (input.length) {
-      // Clear the input on send
-      this.setState({ input: "" }, () => this.inputRef.clear());
-    }
+    messageInput: ""
   };
 
   componentDidMount() {
-    const id = this.props.navigation.getParam("id");
-
     Moment.locale("fr");
 
+    const id = this.props.navigation.getParam("id");
+    this.conversation = DB.collection("channels").doc(id);
     // Listen to updates on this conversation
-    this.conversationListener = DB.collection("channels")
-      .doc(id)
-      .onSnapshot(snapshot => {
-        this.setState({ conversation: snapshot.data() });
-      });
+    this.conversationListener = this.conversation.onSnapshot(snapshot => {
+      this.setState({ conversation: snapshot.data() });
+    });
   }
 
   componentWillUnmount() {
@@ -50,7 +42,35 @@ export default class Conversation extends React.Component {
     this.conversationListener();
   }
 
+  send = () => {
+    const { messageInput } = this.state;
+    if (messageInput.length) {
+      this.conversation
+        .update({
+          messages: Admin.FieldValue.arrayUnion({
+            content: this.state.messageInput,
+            read: Admin.Timestamp.now(),
+            sender: this.props.user.id,
+            sent: Admin.Timestamp.now()
+          })
+        })
+        .then(() => {
+          // Clear the input on send
+          this.setState({ messageInput: "" }, () => this.inputRef.clear());
+        })
+        .catch(error =>
+          Alert.alert(
+            "Impossible d'envoyer le message",
+            `Veuillez réessayer plus tard. ${error}.`
+          )
+        );
+    }
+  };
+
   render() {
+    const { navigation } = this.props;
+    const users = navigation.getParam("users");
+
     return (
       <SafeAreaView style={styles.container}>
         <ScrollView
@@ -60,19 +80,12 @@ export default class Conversation extends React.Component {
           {this.state.conversation.messages &&
             this.state.conversation.messages.map((message, index) => (
               <View key={index}>
-                <Message
-                  message={message}
-                  style={
-                    message.sender === "9XOpwA3LXqTURzaebAPE"
-                      ? "sender"
-                      : "receiver"
-                  }
-                />
                 <Text style={styles.sent}>
                   {Moment(message.sent.seconds, "X").format(
                     "Do MMM YYYY hh:mm"
                   )}
                 </Text>
+                <Message message={message} user={users[message.sender]} />
               </View>
             ))}
         </ScrollView>
@@ -83,7 +96,7 @@ export default class Conversation extends React.Component {
             </TouchableOpacity>
             <TextInput
               style={styles.input}
-              onChangeText={text => this.setState({ input: text })}
+              onChangeText={text => this.setState({ messageInput: text })}
               ref={ref => (this.inputRef = ref)}
               keyboardAppearance="dark"
               placeholder=">_"
@@ -92,7 +105,7 @@ export default class Conversation extends React.Component {
             <TouchableOpacity style={styles.inputSend} onPress={this.send}>
               <Icon
                 name="send"
-                color={this.state.input.length ? "lime" : "#555"}
+                color={this.state.messageInput.length ? "lime" : "#555"}
                 size={30}
               />
             </TouchableOpacity>
@@ -103,10 +116,21 @@ export default class Conversation extends React.Component {
   }
 }
 
+const mapStateToProps = state => {
+  return { user: state.user };
+};
+
+export default connect(mapStateToProps)(Conversation);
+
+const black = "black";
+const darkGrey = "#333";
+const lightGrey = "#555";
+const primaryColor = "lime";
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black"
+    backgroundColor: black
   },
   messagesContainer: {
     flex: 1,
@@ -119,7 +143,7 @@ const styles = StyleSheet.create({
   inputArea: {
     flex: 0,
     flexDirection: "row",
-    backgroundColor: "#333",
+    backgroundColor: darkGrey,
     alignItems: "center"
   },
   inputAddon: {
@@ -134,13 +158,14 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     padding: 10,
     flex: 1,
-    backgroundColor: "black",
-    color: "lime",
+    backgroundColor: black,
+    color: primaryColor,
     margin: 5,
     fontFamily: "source-code-pro"
   },
   sent: {
-    color: "#555",
-    textAlign: "center"
+    color: lightGrey,
+    textAlign: "center",
+    margin: 5
   }
 });
