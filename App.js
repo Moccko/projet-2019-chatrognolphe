@@ -1,7 +1,8 @@
 import React from "react";
 import Navigation from "./navigation/Navigation";
 import { Font } from "expo";
-import SignUp from "./screens/SignUp";
+import { Provider } from "react-redux";
+import Store from "./store/Store";
 
 export default class App extends React.Component {
   state = {
@@ -15,6 +16,12 @@ export default class App extends React.Component {
   }
 
   render() {
-    return this.state.fontLoaded && <Navigation />;
+    return (
+      this.state.fontLoaded && (
+        <Provider store={Store}>
+          <Navigation />
+        </Provider>
+      )
+    );
   }
 }

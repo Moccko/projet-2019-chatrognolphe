@@ -34,7 +34,6 @@ const AuthNavigator = createStackNavigator(
   },
   {
     initialRouteName: "SignIn",
-    /* The header config from HomeScreen is now here */
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: "#000"
