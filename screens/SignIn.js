@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  View,
   TouchableOpacity,
   Image,
   Alert,
@@ -20,7 +19,10 @@ class SignIn extends React.Component {
   pwdInput = undefined;
 
   _forgotPwd = () => {
-    console.log("mdp oublié");
+    Alert.alert(
+      "Vous avez oublié votre mot de passe ?",
+      "Comment avez-vous pu ?!"
+    );
   };
 
   storeUser = user => {

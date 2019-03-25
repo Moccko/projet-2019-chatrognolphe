@@ -16,7 +16,9 @@ class Message extends React.Component {
         >
           <Text style={[styles[`${style}Label`], styles.label]}>
             {`${
-              user && user.nickname ? user.nickname : user.fname.toLowerCase()
+              user && user.nickname
+                ? user.nickname
+                : (user.fname + user.lname).toLowerCase()
             }$ ${message.content}`}
           </Text>
         </View>
@@ -41,7 +43,8 @@ const styles = StyleSheet.create({
   message: {
     margin: 1,
     padding: 10,
-    borderRadius: 25
+    borderRadius: 25,
+    maxWidth: "80%"
   },
   sender: {
     // height: 75,
@@ -49,7 +52,8 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end"
   },
   label: {
-    fontFamily: "source-code-pro"
+    fontFamily: "source-code-pro",
+    color: white
   },
   senderLabel: {
     color: white,
@@ -62,9 +66,5 @@ const styles = StyleSheet.create({
   receiverLabel: {
     color: "black",
     textAlign: "left"
-  },
-  nameLabel: {
-    color: primaryColor,
-    textAlign: "center"
   }
 });
