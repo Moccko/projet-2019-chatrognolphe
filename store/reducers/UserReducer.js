@@ -1,4 +1,4 @@
-const initialState = { user: {} };
+const initialState = { user: undefined };
 
 export default function loginUser(state = initialState, action) {
   switch (action.type) {
