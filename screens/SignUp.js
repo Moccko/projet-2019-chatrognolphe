@@ -9,47 +9,62 @@ import {
   StyleSheet,
   SafeAreaView,
   KeyboardAvoidingView,
-  Alert
+  Alert,
+  Image
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { Auth } from "../data/Database";
-import { DB } from "../data/Database";
+import DatePicker from "react-native-datepicker";
+
+import { Auth, DB } from "../data/Database";
 
 export default class SignUp extends React.Component {
-  email = undefined;
-  fname = undefined;
-  lname = undefined;
-  bday = undefined;
-  pwd = undefined;
-  confirmPwd = undefined;
+  constructor(props) {
+    super(props);
+    this.state = {
+      date: new Date()
+    };
+  }
 
+  email = "";
+  fname = "";
+  lname = "";
+  bday = "";
+  pwd = "";
+  confirmPwd = "";
   currentInput = 0;
-
+  //Tableau contenant les refs
   inputsRefs = [];
 
   _signUp = () => {
     //Gestion des champs erronés :
-
-    //Insertion bdd :
-    var addDoc = DB.collection("users")
-      .add({
-        bday: this.bday,
-        email: this.email,
-        fname: this.fname,
-        lname: this.lname,
-        nickname: "apres",
-        phone: "apres",
-        pwd: this.pwd,
-        sex: "0"
-      })
-      .then(ref => {
-        console.log("Added document with ID: ", ref.id);
-      });
-    //Insertion base authentification
-    Auth.createUserWithEmailAndPassword(this.email, this.pwd)
-      .then(() => this.props.navigation.navigate("RecentMessages"))
-      .catch(error => Alert.alert(error));
+    !this.email.length
+      ? Alert.alert("Erreur", "Entrez une addresse e-mail vailde")
+      : console.log(this.email);
+    this.bday === undefined
+      ? Alert.alert("Erreur", "Entrez une date de naissance, svp ")
+      : Auth.createUserWithEmailAndPassword(this.email, this.pwd)
+          .then(() => {
+            //Insertion bdd :
+            DB.collection("users").add({
+              bday: this.bday,
+              email: this.email,
+              fname: this.fname,
+              lname: this.lname,
+              nickname: "apres",
+              phone: "apres",
+              pwd: this.pwd,
+              sex: "0"
+            });
+            this.props.navigation
+              .navigate("SignUp_Option", {
+                email: this.email
+              })
+              .then(ref => {
+                console.log("Added document with ID: ", ref.id);
+              });
+          })
+          .catch(error => Alert.alert("Erreur", error.toString()));
   };
 
   _signIn = () => {
@@ -61,7 +76,8 @@ export default class SignUp extends React.Component {
   };
 
   goNext = () => {
-    this.inputsRefs[this.currentInput + 1].focus();
+    this.currentInput++;
+    this.inputsRefs[this.currentInput].focus();
   };
 
   submit = () => {};
@@ -73,6 +89,7 @@ export default class SignUp extends React.Component {
       type: "email-address",
       capitalize: "none",
       placeholder: "an@nymo.us"
+      //id : 0,
     },
     {
       label: "Prénom",
@@ -80,6 +97,7 @@ export default class SignUp extends React.Component {
       type: "default",
       capitalize: "words",
       placeholder: "Mickaël"
+      //id : 1,
     },
     {
       label: "Nom",
@@ -87,13 +105,15 @@ export default class SignUp extends React.Component {
       type: "default",
       capitalize: "words",
       placeholder: "Vendetta"
+      //id : 2,
     },
     {
       label: "Date de naissance",
       name: "bday",
-      type: "default",
+      type: "date",
       capitalize: "sentences",
-      placeholder: "11/09/2001"
+      placeholder: "Choisis ta temporalité"
+      //id : 3,
     },
     {
       label: "Mot de passe",
@@ -101,6 +121,7 @@ export default class SignUp extends React.Component {
       type: "password",
       capitalize: "none",
       placeholder: "Les dés sont jetés"
+      //id : 4,
     },
     {
       label: "Confirmer le mot de passe",
@@ -108,27 +129,55 @@ export default class SignUp extends React.Component {
       type: "password",
       capitalize: "none",
       placeholder: "Hasta la vista baby"
+      //id : 5,
     }
   ];
 
-  renderInput = (input, index, arr) => (
-    <View key={index}>
-      <Text style={styles.label}>{input.label}</Text>
-      <TextInput
-        style={styles.input}
-        ref={this.onRef}
-        onFocus={() => (this.currentInput = index)}
-        onChangeText={text => (this[input.name] = text)}
-        returnKeyType={index === arr.length - 1 ? "go" : "next"}
-        onEndEditing={index === arr.length - 1 ? this.submit : this.goNext}
-        // blurOnSubmit={index === arr.length - 1}
-        placeholder={input.placeholder}
-        placeholderTextColor="#555"
-        keyboardAppearance="dark"
-        keyboardType={input.type === "email-address" ? input.type : "default"}
-      />
-    </View>
-  );
+  renderInput = (input, index, arr) =>
+    input.type === "date" ? (
+      <View key={index}>
+        <Text style={styles.label}>{input.label}</Text>
+        <DatePicker
+          ref={this.onRef}
+          style={styles.dateInput}
+          showIcon={true}
+          date={this.state.date} //initial date from state
+          mode="date" //The enum of date, datetime and time
+          format="DD-MM-YYYY"
+          minDate="01-01-1901"
+          maxDate="01-01-2100"
+          confirmBtnText="Confirm"
+          cancelBtnText="Cancel"
+          onDateChange={date => {
+            this[input.name] = date;
+            this.setState({ date: date });
+            this.goNext();
+          }}
+        />
+      </View>
+    ) : (
+      <View key={index}>
+        <Text style={styles.label}>{input.label}</Text>
+        <TextInput
+          style={styles.input}
+          ref={this.onRef}
+          //ref={this.onRef(input.id)}
+          onFocus={() => (this.currentInput = index)}
+          onChangeText={text => (this[input.name] = text)}
+          //returnKeyType={index === arr.length - 1 ? "go" : "next"}
+          returnKeyType={index === this.inputs.length - 1 ? "go" : "next"}
+          //onEndEditing={index === arr.length - 1 ? this._signUp : this.goNext}
+          onEndEditing={
+            index === this.inputs.length - 1 ? this._signUp : this.goNext
+          }
+          // blurOnSubmit={index === arr.length - 1}
+          placeholder={input.placeholder}
+          placeholderTextColor="#555"
+          keyboardAppearance="dark"
+          keyboardType={input.type === "email-address" ? input.type : "default"}
+        />
+      </View>
+    );
 
   render() {
     return (
@@ -153,7 +202,8 @@ export default class SignUp extends React.Component {
             <Text style={styles.h2}>Mes informations (cryptées)</Text>
 
             {this.inputs.map(this.renderInput)}
-
+            {console.log("refs=", this.inputsRefs)}
+            {console.log("current input=", this.currentInput)}
             <TouchableOpacity style={styles.btnPrimary} onPress={this._signUp}>
               <Text style={styles.btnPrimaryLb}>Devenir un hacker</Text>
             </TouchableOpacity>
@@ -166,18 +216,20 @@ export default class SignUp extends React.Component {
 
 // const primaryColor = "#ff09a3";
 const primaryColor = "lime";
+const black = "black";
+const fb = "#3b5998";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black"
+    backgroundColor: black
   },
   scrollContainer: {
     // flex: 1,
     alignItems: "center",
     paddingLeft: 25,
     paddingRight: 25,
-    backgroundColor: "black"
+    backgroundColor: black
   },
   h2: {
     textAlign: "center",
@@ -201,6 +253,14 @@ const styles = StyleSheet.create({
     fontFamily: "source-code-pro",
     color: primaryColor
   },
+  dateInput: {
+    borderColor: primaryColor,
+    borderStyle: "solid",
+    width: 280,
+    height: 40,
+    fontFamily: "source-code-pro",
+    color: primaryColor
+  },
   btnPrimary: {
     backgroundColor: primaryColor,
     borderRadius: 5,
@@ -212,7 +272,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textTransform: "uppercase",
     fontFamily: "source-code-pro",
-    color: "black"
+    color: black
   },
   btnSecondary: {
     borderRadius: 5,
@@ -233,7 +293,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     // backgroundColor: "#3b5998",
     padding: 13,
-    borderColor: "#3b5998",
+    borderColor: fb,
     borderStyle: "solid",
     borderWidth: 2,
     borderRadius: 5,
@@ -244,6 +304,6 @@ const styles = StyleSheet.create({
   btnFbLb: {
     textAlign: "center",
     textTransform: "uppercase",
-    color: "#3b5998"
+    color: fb
   }
 });

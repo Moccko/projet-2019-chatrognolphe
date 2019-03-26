@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import md5 from "crypto-js/md5";
 import { DB } from "../data/Database";
+import Avatars from "@dicebear/avatars";
+import sprites from "@dicebear/avatars-male-sprites";
 
 export default class SignUp_Option extends React.Component {
   nickN = undefined;
@@ -20,6 +22,13 @@ export default class SignUp_Option extends React.Component {
   aboutMe = undefined;
   tel_ref = undefined;
   aboutMe_ref = undefined;
+  options = {};
+  avatars = new Avatars(sprites(options));
+  svg = avatars.create("custom-seed");
+
+  state = {
+    seed: "cid"
+  };
 
   _signIn = () => {
     this.props.navigation.navigate("SignIn");
@@ -45,6 +54,14 @@ export default class SignUp_Option extends React.Component {
             behavior="position"
             keyboardVerticalOffset={100}
           >
+            <Image
+              source={{
+                uri: `https://avatars.dicebear.com/v2/male/${
+                  this.state.seed
+                }.svg`
+              }}
+              style={styles.image}
+            />
             <Text style={styles.label}> Mon surnom </Text>
             <TextInput
               style={styles.input}
@@ -166,5 +183,9 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     fontFamily: "source-code-pro",
     color: primaryColor
+  },
+  image: {
+    width: 100,
+    height: 100
   }
 });
