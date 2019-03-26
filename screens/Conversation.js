@@ -1,8 +1,8 @@
-// TODO : group messages not to always display hour
+// TODO : group messages not to always display hour, enable multiline input message
 import React from "react";
 import {
   ScrollView,
-  Dimensions,
+  FlatList,
   View,
   Text,
   TouchableOpacity,
@@ -20,6 +20,7 @@ import { connect } from "react-redux";
 
 class Conversation extends React.Component {
   inputRef = undefined;
+  scrollViewRef = undefined;
 
   state = {
     conversation: {},
@@ -35,11 +36,16 @@ class Conversation extends React.Component {
     this.conversationListener = this.conversation.onSnapshot(snapshot => {
       this.setState({ conversation: snapshot.data() });
     });
+    this.scrollViewRef.scrollToEnd({ animated: true });
   }
 
   componentWillUnmount() {
     // Detach the listener
     this.conversationListener();
+  }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    this.scrollViewRef.scrollToEnd({ animated: true });
   }
 
   send = () => {
@@ -75,19 +81,22 @@ class Conversation extends React.Component {
       <SafeAreaView style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.messagesContainer}
-          style={styles.messages}
+          ref={ref => (this.scrollViewRef = ref)}
         >
-          {this.state.conversation.messages &&
-            this.state.conversation.messages.map((message, index) => (
-              <View key={index}>
-                <Text style={styles.sent}>
-                  {Moment(message.sent.seconds, "X").format(
-                    "Do MMM YYYY hh:mm"
-                  )}
-                </Text>
-                <Message message={message} user={users[message.sender]} />
-              </View>
-            ))}
+          {this.state.conversation.messages && (
+            <FlatList
+              data={this.state.conversation.messages}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View>
+                  <Text style={styles.sent}>
+                    {Moment(item.sent.seconds, "X").format("Do MMM YYYY hh:mm")}
+                  </Text>
+                  <Message message={item} user={users[item.sender]} />
+                </View>
+              )}
+            />
+          )}
         </ScrollView>
         <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={88}>
           <View style={styles.inputArea}>
@@ -133,11 +142,8 @@ const styles = StyleSheet.create({
     backgroundColor: black
   },
   messagesContainer: {
-    flex: 1,
-    justifyContent: "flex-end"
-  },
-  messages: {
-    width: Dimensions.get("window").width,
+    flexGrow: 1,
+    justifyContent: "flex-end",
     padding: 10
   },
   inputArea: {
