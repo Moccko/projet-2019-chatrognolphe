@@ -3,8 +3,10 @@ import { createStackNavigator, createAppContainer } from "react-navigation";
 import RecentMessages from "../screens/RecentMessages";
 import Conversation from "../screens/Conversation";
 import SignIn from "../screens/SignIn";
-import SignUp from "../screens/SignUp";
+import SignUp_1 from "../screens/SignUp_1";
+import SignUp_3 from "../screens/SignUp_3";
 import { connect } from "react-redux";
+import SignUp_2 from "../screens/SignUp_2";
 
 const AuthNavigator = createStackNavigator(
   {
@@ -14,10 +16,22 @@ const AuthNavigator = createStackNavigator(
         title: "Se connecter"
       }
     },
-    SignUp: {
-      screen: SignUp,
+    SignUp_1: {
+      screen: SignUp_1,
       navigationOptions: {
         title: "Créer un compte"
+      }
+    },
+    SignUp_3: {
+      screen: SignUp_3,
+      navigationOptions: {
+        title: "Compléter mon inscription"
+      }
+    },
+    SignUp_2:{
+      screen: SignUp_2,
+      navigationOptions:{
+        title: "TestInscrip"
       }
     }
   },
