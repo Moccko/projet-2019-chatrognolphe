@@ -47,7 +47,7 @@ export default class SignUp extends React.Component {
     !this.email.length
       ? Alert.alert("Erreur", "Entrez une addresse e-mail svp")
       : Auth.createUserWithEmailAndPassword(this.email, this.pwd)
-          .then(() => {
+          .then(user => {
             //Insertion bdd :
             this.props.navigation.navigate("SignUp_2", {
               email: this.email,

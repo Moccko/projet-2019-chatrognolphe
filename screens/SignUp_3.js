@@ -17,8 +17,7 @@ import Avatars from "@dicebear/avatars";
 import sprites from "@dicebear/avatars-male-sprites";
 import { connect } from "react-redux";
 
-
-export default class SignUp_3 extends React.Component {
+class SignUp_3 extends React.Component {
   nickN = "";
   tel = "";
   aboutMe = "";
@@ -41,13 +40,16 @@ export default class SignUp_3 extends React.Component {
       aboutMe: this.aboutMe,
       avatarUser: this.state.svg
     };
+
     DB.collection("users")
-      .doc(user.id.toString())
-      .set(userInf, { merge: true });
+        .doc(user.id.toString())
+        .set(userInf, { merge: true });
+
     const u = {
       id: user.id,
       ...user.data()
     };
+
     const action = { type: "LOG_IN", value: u };
     this.props.dispatch(action);
     this.props.navigation.navigate("RecentMessages");
@@ -86,42 +88,48 @@ export default class SignUp_3 extends React.Component {
           >
             <SvgUri width="150" height="150" source={{ uri: this.state.svg }} />
           </View>
-          <Text style={styles.label}> Mon surnom </Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={this.updateAvatar}
-            returnKeyType="next"
-            onEndEditing={() => this.tel_ref.focus()}
-            autoCapitalize="none"
-            placeholder="an@nymo.us"
-            placeholderTextColor="#555"
-            keyboardAppearance="dark"
-            keyboardType="email-address"
-            textContentType="username"
-          />
 
-          <Text style={styles.label}> Numéro de téléphone </Text>
-          <TextInput
-            style={styles.input}
-            ref={ref => (this.tel_ref = ref)}
-            onChangeText={text => (this.tel = text)}
-            onEndEditing={() => this.aboutMe_ref.focus()}
-            returnKeyType="next"
-            placeholder="Tu devineras jamais"
-            placeholderTextColor="#555"
-            keyboardAppearance="dark"
-          />
-          <Text style={styles.label}>À propos de moi</Text>
-          <TextInput
-            onChangeText={text => (this.aboutMe = text)}
-            ref={ref => (this.aboutMe_ref = ref)}
-            returnKeyType="go"
-            style={styles.input}
-            placeholder="Je suis une bite"
-            placeholderTextColor="#555"
-            keyboardAppearance="dark"
-            onEndEditing={this._finalSignUp}
-          />
+          <View>
+            <Text style={styles.label}> Mon surnom </Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={this.updateAvatar}
+              returnKeyType="next"
+              onEndEditing={() => this.tel_ref.focus()}
+              autoCapitalize="none"
+              placeholder="an@nymo.us"
+              placeholderTextColor="#555"
+              keyboardAppearance="dark"
+              keyboardType="email-address"
+              textContentType="username"
+            />
+          </View>
+          <View>
+            <Text style={styles.label}> Numéro de téléphone </Text>
+            <TextInput
+              style={styles.input}
+              ref={ref => (this.tel_ref = ref)}
+              onChangeText={text => (this.tel = text)}
+              onEndEditing={() => this.aboutMe_ref.focus()}
+              returnKeyType="next"
+              placeholder="Tu devineras jamais"
+              placeholderTextColor="#555"
+              keyboardAppearance="dark"
+            />
+          </View>
+          <View>
+            <Text style={styles.label}>À propos de moi</Text>
+            <TextInput
+              onChangeText={text => (this.aboutMe = text)}
+              ref={ref => (this.aboutMe_ref = ref)}
+              returnKeyType="go"
+              style={styles.input}
+              placeholder="Je suis une bite"
+              placeholderTextColor="#555"
+              keyboardAppearance="dark"
+              onEndEditing={this._finalSignUp}
+            />
+          </View>
           <TouchableOpacity
             style={styles.btnPrimary}
             onPress={this._finalSignUp}
@@ -141,6 +149,8 @@ export default class SignUp_3 extends React.Component {
 const primaryColor = "lime";
 const black = "black";
 //const fb =  "#3b5998" ;
+
+export default connect()(SignUp_3);
 
 const styles = StyleSheet.create({
   container: {
