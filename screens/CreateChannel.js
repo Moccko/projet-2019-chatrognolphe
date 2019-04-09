@@ -1,4 +1,3 @@
-// TODO : FlatList won't update with the right content
 import React from "react";
 import {
   View,
@@ -9,18 +8,28 @@ import {
   StatusBar,
   SafeAreaView
 } from "react-native";
-import ConversationItem from "../components/ConversationItem";
+import UserItem from "../components/UserItem";
 import { connect } from "react-redux";
 
-class RecentMessages extends React.Component {
+class CreateChannel extends React.Component {
+  state = {
+    selectedUsers: []
+  };
+
+  selectUser = user => {};
+
   render() {
+    const { users, user } = this.props;
+
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" />
         <FlatList
-          data={this.props.channels}
+          data={Object.values(users).filter(u => u.id !== user.id)}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <ConversationItem conversation={item} />}
+          renderItem={({ item }) => (
+            <UserItem user={item} selectUser={() => this.selectUser(item.id)} />
+          )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       </SafeAreaView>
@@ -30,9 +39,9 @@ class RecentMessages extends React.Component {
 
 const mapStateToProps = state => ({
   user: state.user,
-  channels: state.channels
+  users: state.users
 });
-export default connect(mapStateToProps)(RecentMessages);
+export default connect(mapStateToProps)(CreateChannel);
 
 const primaryColor = "#ff09a3";
 const black = "black";

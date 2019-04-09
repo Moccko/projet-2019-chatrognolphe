@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   SafeAreaView,
   Alert,
+  Keyboard,
+  Platform,
   StyleSheet
 } from "react-native";
 import { DB, Admin } from "../data/Database";
@@ -23,42 +25,62 @@ class Conversation extends React.Component {
   scrollViewRef = undefined;
 
   state = {
-    conversation: {},
+    conversation: [],
     messageInput: ""
   };
 
-  componentDidMount() {
-    Moment.locale("fr");
+  updateMessages = messagesSnapshot => {
+    const messages = messagesSnapshot.docs.map(m => {
+      const sender = m.data().sender.id;
 
-    const id = this.props.navigation.getParam("id");
-    this.conversation = DB.collection("channels").doc(id);
-    // Listen to updates on this conversation
-    this.conversationListener = this.conversation.onSnapshot(snapshot => {
-      this.setState({ conversation: snapshot.data() });
+      return {
+        ...m.data(),
+        sender
+      };
     });
-    this.scrollViewRef.scrollToEnd({ animated: true });
+
+    this.setState({ conversation: messages }, () =>
+      this.scrollViewRef.scrollToEnd({ animated: true })
+    );
+  };
+
+  componentDidMount() {
+    const id = this.props.navigation.getParam("id");
+
+    this.conversation = DB.collection("channels").doc(id);
+
+    const messagesRef = DB.collection("messages")
+      .where("channel", "==", this.conversation)
+      .orderBy("sent", "asc");
+
+    // Listen to updates on this conversation
+    this.conversationListener = messagesRef.onSnapshot(this.updateMessages);
+
+    this.keyboardShowListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      () => this.scrollViewRef.scrollToEnd({ animated: true })
+    );
   }
 
   componentWillUnmount() {
     // Detach the listener
     this.conversationListener();
+    this.keyboardShowListener.remove();
   }
 
-  componentWillUpdate(nextProps, nextState, nextContext) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     this.scrollViewRef.scrollToEnd({ animated: true });
   }
 
   send = () => {
     const { messageInput } = this.state;
     if (messageInput.length) {
-      this.conversation
-        .update({
-          messages: Admin.FieldValue.arrayUnion({
-            content: this.state.messageInput,
-            read: Admin.Timestamp.now(),
-            sender: this.props.user.id,
-            sent: Admin.Timestamp.now()
-          })
+      DB.collection("messages")
+        .add({
+          content: messageInput,
+          channel: this.conversation,
+          sender: this.props.user.ref,
+          sent: Admin.Timestamp.now()
         })
         .then(() => {
           // Clear the input on send
@@ -74,8 +96,27 @@ class Conversation extends React.Component {
   };
 
   render() {
-    const { navigation } = this.props;
-    const users = navigation.getParam("users");
+    const { users } = this.props;
+    if (this.state.conversation.length)
+      this.timestamp = Moment(this.state.conversation[0].sent, "X").subtract(
+        1,
+        "days"
+      );
+
+    const Date = props => {
+      const { timestamp } = props;
+      let shouldShow = false;
+      if (timestamp.isAfter(this.timestamp)) {
+        this.timestamp = timestamp.clone();
+        this.timestamp.add(1, "days");
+        shouldShow = true;
+      }
+      return (
+        shouldShow && (
+          <Text style={styles.sent}>{timestamp.format("Do MMMM YYYY")}</Text>
+        )
+      );
+    };
 
     return (
       <SafeAreaView style={styles.container}>
@@ -83,25 +124,18 @@ class Conversation extends React.Component {
           contentContainerStyle={styles.messagesContainer}
           ref={ref => (this.scrollViewRef = ref)}
         >
-          {this.state.conversation.messages && (
-            <FlatList
-              data={this.state.conversation.messages}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <View>
-                  <Text style={styles.sent}>
-                    {Moment(item.sent.seconds, "X").format("Do MMM YYYY hh:mm")}
-                  </Text>
-                  <Message message={item} user={users[item.sender]} />
-                </View>
-              )}
-            />
-          )}
+          {this.state.conversation.length > 0 &&
+            this.state.conversation.map((message, index) => (
+              <View key={index}>
+                <Date timestamp={Moment(message.sent.seconds, "X")} />
+                <Message message={message} user={users[message.sender]} />
+              </View>
+            ))}
         </ScrollView>
         <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={88}>
           <View style={styles.inputArea}>
             <TouchableOpacity style={styles.inputAddon}>
-              <Icon name="add" color="#555" size={40} />
+              <Icon name="add" color="#555" size={40} os />
             </TouchableOpacity>
             <TextInput
               style={styles.input}
@@ -116,6 +150,7 @@ class Conversation extends React.Component {
                 name="send"
                 color={this.state.messageInput.length ? "lime" : "#555"}
                 size={30}
+                os
               />
             </TouchableOpacity>
           </View>
@@ -125,9 +160,7 @@ class Conversation extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return { user: state.user };
-};
+const mapStateToProps = state => ({ user: state.user, users: state.users });
 
 export default connect(mapStateToProps)(Conversation);
 

@@ -25,14 +25,18 @@ class SignIn extends React.Component {
     );
   };
 
-  storeUser = user => {
+  storeUser = async user => {
     const u = {
       id: user.id,
+      ref: user.ref,
       ...user.data()
     };
-    const action = { type: "LOG_IN", value: u };
+
+    const action = {
+      type: "LOG_IN",
+      value: u
+    };
     this.props.dispatch(action);
-    this.props.navigation.navigate("RecentMessages");
   };
 
   _signIn = () => {

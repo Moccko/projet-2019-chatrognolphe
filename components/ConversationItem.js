@@ -4,63 +4,83 @@ import Icon from "../components/Icon";
 import Moment from "moment";
 import { withNavigation } from "react-navigation";
 import { connect } from "react-redux";
+import { DB } from "../data/Database";
 
 class ConversationItem extends React.Component {
   users = {};
 
   state = {
-    creation: "",
-    users: "",
+    lastUpdate: "",
+    title: "",
     lastMessage: ""
   };
 
   onPress = () => {
     this.props.navigation.navigate("Conversation", {
-      title: this.state.users,
-      id: this.props.conversation.id,
-      users: this.users
+      title: this.state.title,
+      id: this.props.conversation.id
+    });
+  };
+
+  get usersString() {
+    return Object.values(this.props.users)
+      .filter(val => val.id !== this.props.user.id)
+      .reduce(
+        (acc, val, ind) => `${acc}${ind === 0 ? "" : ", "}${val.fname}`,
+        ""
+      );
+  }
+
+  getInfos = conversationSnapshot => {
+    const title = conversationSnapshot.get("title");
+
+    // Store title or users
+    this.setState({ title: title ?? this.usersString });
+  };
+
+  updateLastMessage = messagesSnapshot => {
+    // Get the last message
+    const message = messagesSnapshot.docs[0].data();
+
+    this.setState({
+      lastMessage: message.content,
+      lastUpdate: Moment(message.sent.seconds).format("hh:mm")
     });
   };
 
   componentDidMount() {
     const { conversation } = this.props;
 
-    conversation.users.forEach(u =>
-      u.get().then(user => {
-        this.users[user.id] = { id: user.id, ...user.data() };
-        this.setState({
-          users: Object.values(this.users)
-            .filter(val => val.id !== this.props.user.id)
-            .reduce(
-              (acc, val, ind) => `${acc}${ind === 0 ? "" : ", "}${val.fname}`,
-              ""
-            )
-        });
-      })
-    );
+    const channelRef = DB.collection("channels").doc(conversation.id);
+    this.lastMessageListener = DB.collection("messages")
+      .where("channel", "==", channelRef)
+      // .orderBy("sent", "desc")
+      .limit(1)
+      .onSnapshot(this.updateLastMessage);
+    this.channelListener = channelRef.onSnapshot(this.getInfos);
+  }
 
-    const lastMessage = conversation.messages.pop();
-
-    this.setState({
-      creation: Moment(lastMessage.sent.seconds).format("hh:mm"),
-      lastMessage: lastMessage.content
-    });
+  componentWillUnmount() {
+    this.usersListener();
+    this.lastMessageListener();
+    this.channelListener();
   }
 
   render() {
     return (
       <TouchableOpacity style={styles.container} onPress={this.onPress}>
         <View style={styles.content}>
-          <Text style={styles.users}>{this.state.users}</Text>
+          <Text style={styles.users}>{this.state.title}</Text>
           <Text style={styles.message}>{this.state.lastMessage}</Text>
         </View>
-        <Text style={[styles.when, styles.right]}>{this.state.creation}</Text>
+        <Text style={[styles.when, styles.right]}>{this.state.lastUpdate}</Text>
         <TouchableOpacity style={styles.right}>
           <Icon
             name="cog"
             size={30}
             color={primaryColor}
             style={styles.settingsBtn}
+            os
           />
         </TouchableOpacity>
       </TouchableOpacity>
@@ -68,9 +88,7 @@ class ConversationItem extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return { user: state.user };
-};
+const mapStateToProps = state => ({ user: state.user, users: state.users });
 
 export default connect(mapStateToProps)(withNavigation(ConversationItem));
 

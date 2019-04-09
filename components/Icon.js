@@ -4,10 +4,11 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default class Icon extends React.Component {
   render() {
+    const { name, os } = this.props;
     return (
       <Ionicons
         {...this.props}
-        name={`${Platform.OS === "ios" ? "ios" : "md"}-${this.props.name}`}
+        name={os ? `${Platform.OS === "ios" ? "ios" : "md"}-${name}` : name}
       />
     );
   }

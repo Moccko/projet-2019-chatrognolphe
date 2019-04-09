@@ -1,18 +1,26 @@
 import React from "react";
 import { View, Image, Text, StyleSheet } from "react-native";
 import { connect } from "react-redux";
+import Moment from "moment";
 
 class Message extends React.Component {
+  renderTimestamp(message) {
+    return (
+      <Text style={styles.time}>
+        {Moment(message.sent.seconds, "X").format("HH:mm")}
+      </Text>
+    );
+  }
+
   render() {
     const { message, user, style, currentUser } = this.props;
+    const isSender = message.sender === currentUser.id;
 
     return (
-      message && (
+      <View style={styles.container}>
+        {isSender && this.renderTimestamp(message)}
         <View
-          style={[
-            styles.message,
-            styles[message.sender === currentUser.id ? "sender" : "receiver"]
-          ]}
+          style={[styles.message, styles[isSender ? "sender" : "receiver"]]}
         >
           <Text style={[styles[`${style}Label`], styles.label]}>
             {`${
@@ -22,7 +30,8 @@ class Message extends React.Component {
             }$ ${message.content}`}
           </Text>
         </View>
-      )
+        {!isSender && this.renderTimestamp(message)}
+      </View>
     );
   }
 }
@@ -40,6 +49,11 @@ const lightGrey = "#555";
 const primaryColor = "lime";
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
   message: {
     margin: 1,
     padding: 10,
@@ -66,5 +80,8 @@ const styles = StyleSheet.create({
   receiverLabel: {
     color: "black",
     textAlign: "left"
+  },
+  time: {
+    color: darkGrey
   }
 });
