@@ -34,10 +34,10 @@ class Navigation extends React.Component {
       channelSnapshot.forEach(channel => {
         // console.log(channel.data().users.map(user => user.id));
         channels.push({
+          ...channel.data(),
           id: channel.id,
           ref: channel.ref,
-          // users: channel.data().users.map(user => user.id),
-          ...channel.data()
+          users: channel.data().users.map(user => user.id)
         });
       });
     }
@@ -52,7 +52,7 @@ class Navigation extends React.Component {
   updateUsers = usersSnapshot => {
     const users = {};
     usersSnapshot.forEach(
-      user => (users[user.id] = { id: user.id, ref: user.ref, ...user.data() })
+      user => (users[user.id] = { ...user.data(), id: user.id, ref: user.ref })
     );
 
     this.props.dispatch({ type: "UPDATE_USERS", value: users });

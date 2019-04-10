@@ -25,8 +25,7 @@ class ConversationItem extends React.Component {
   get usersString() {
     const { user, users, allUsers } = this.props;
 
-    // return users
-    return Object.values(users)
+    return users
       .filter(val => val !== user.id)
       .reduce(
         (acc, val, ind) =>
@@ -68,7 +67,7 @@ class ConversationItem extends React.Component {
     const channelRef = DB.collection("channels").doc(conversation.id);
     this.lastMessageListener = DB.collection("messages")
       .where("channel", "==", channelRef)
-      // .orderBy("sent", "desc")
+      .orderBy("sent", "desc")
       .limit(1)
       .onSnapshot(this.updateLastMessage);
     this.channelListener = channelRef.onSnapshot(this.getInfos);

@@ -29,9 +29,9 @@ class SignIn extends React.Component {
 
   storeUser = async user => {
     const u = {
+      ...user.data(),
       id: user.id,
-      ref: user.ref,
-      ...user.data()
+      ref: user.ref
     };
 
     this.props.dispatch({
