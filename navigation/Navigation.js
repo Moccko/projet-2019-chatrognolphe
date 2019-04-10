@@ -15,12 +15,14 @@ import EditProfile from "../screens/EditProfile";
 import RecentMessages from "../screens/RecentMessages";
 import Conversation from "../screens/Conversation";
 import CreateChannel from "../screens/CreateChannel";
+import Conversation_Options from "../screens/Conversation_Options";
 
 import { connect } from "react-redux";
 import { View, ActivityIndicator, StyleSheet, Vibration } from "react-native";
 
 import Drawer from "../components/Drawer";
 import CreateMessage from "../components/CreateMessage";
+import EditConversation from "../components/EditConversation";
 import Icon from "../components/Icon";
 
 class Navigation extends React.Component {
@@ -149,7 +151,14 @@ class Navigation extends React.Component {
         Conversation: {
           screen: Conversation,
           navigationOptions: ({ navigation }) => ({
-            title: navigation.getParam("title")
+            title: navigation.getParam("title"),
+            headerRight: <EditConversation navigation={navigation} />
+          })
+        },
+        Conversation_Options: {
+          screen: Conversation_Options,
+          navigationOptions: ({ navigation }) => ({
+            title: `Modifier ${navigation.getParam("title")}`
           })
         },
         EditProfile: {
