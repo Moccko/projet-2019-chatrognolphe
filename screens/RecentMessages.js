@@ -17,30 +17,21 @@ class RecentMessages extends React.Component {
     const { channels } = this.props;
     return (
       <SafeAreaView style={styles.container}>
-        <ScrollView>
-          {channels.length ? (
-            <FlatList
-              data={this.props.channels}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <ConversationItem conversation={item} users={item.users} />
-              )}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-            />
-          ) : (
-            <Text
-              style={{
-                color: "white",
-                textAlign: "center",
-                margin: 15,
-                fontSize: 18
-              }}
-            >
-              Vous n'avez pas encore de discussion. Créez-en une avec un être
-              humain !
-            </Text>
-          )}
-        </ScrollView>
+        {channels.length ? (
+          <FlatList
+            data={this.props.channels}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <ConversationItem conversation={item} users={item.users} />
+            )}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+          />
+        ) : (
+          <Text style={styles.fallbackText}>
+            Vous n'avez pas encore de discussion. Créez-en une avec un être
+            humain !
+          </Text>
+        )}
       </SafeAreaView>
     );
   }
@@ -52,7 +43,9 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps)(RecentMessages);
 
 const primaryColor = "#ff09a3";
+const white = "white";
 const black = "black";
+const gray = "#333";
 const lightGray = "#555";
 
 const styles = StyleSheet.create({
@@ -66,7 +59,13 @@ const styles = StyleSheet.create({
     height: 1,
     // width: "86%",
     // backgroundColor: "#CED0CE"
-    backgroundColor: lightGray
+    backgroundColor: gray
     // marginLeft: "14%"
+  },
+  fallbackText: {
+    color: white,
+    textAlign: "center",
+    margin: 15,
+    fontSize: 18
   }
 });

@@ -1,10 +1,11 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import Icon from "../components/Icon";
 import Moment from "moment";
 import { withNavigation } from "react-navigation";
 import { connect } from "react-redux";
 import { DB } from "../data/Database";
+import Swipeable from "react-native-swipeable";
 
 class ConversationItem extends React.Component {
   users = {};
@@ -61,16 +62,60 @@ class ConversationItem extends React.Component {
     }
   };
 
+  editConversation = () => {
+    const { conversation, navigation } = this.props;
+    navigation.navigate("Conversation_Options", { id: conversation.id });
+  };
+
+  deleteConversation = () => {
+    const { conversation } = this.props;
+    Alert.alert(
+      "Minute papillon",
+      "Tu es sûr de vouloir supprimer cette conversation ? Cette action est irréversible, même pour Chuck Norris.",
+      [
+        {
+          text: "Mdr je voulais juste tester",
+          style: "cancel"
+        },
+        {
+          text: "C'est mon dernier mot Jean-Pierre",
+          onPress: () => {
+            DB.collection("messages")
+              .where("channel", "==", conversation.ref)
+              .get()
+              .then(messagesSnapshot => {
+                messagesSnapshot.forEach(m => m.ref.delete());
+                conversation.ref
+                  .delete()
+                  .catch(e =>
+                    Alert.alert(
+                      "Erreur",
+                      `Impossible de supprimer la conversation : ${e.toString()}`
+                    )
+                  );
+              })
+              .catch(e =>
+                Alert.alert(
+                  "Erreur",
+                  `Impossible de supprimer les messages associés : ${e.toString()}`
+                )
+              );
+          }
+        }
+      ],
+      { cancelable: true }
+    );
+  };
+
   componentDidMount() {
     const { conversation } = this.props;
 
-    const channelRef = DB.collection("channels").doc(conversation.id);
     this.lastMessageListener = DB.collection("messages")
-      .where("channel", "==", channelRef)
+      .where("channel", "==", conversation.ref)
       .orderBy("sent", "desc")
       .limit(1)
       .onSnapshot(this.updateLastMessage);
-    this.channelListener = channelRef.onSnapshot(this.getInfos);
+    this.channelListener = conversation.ref.onSnapshot(this.getInfos);
   }
 
   componentWillUnmount() {
@@ -79,23 +124,33 @@ class ConversationItem extends React.Component {
   }
 
   render() {
-    return (
-      <TouchableOpacity style={styles.container} onPress={this.onPress}>
-        <View style={styles.content}>
-          <Text style={styles.users}>{this.state.title}</Text>
-          <Text style={styles.message}>{this.state.lastMessage}</Text>
-        </View>
-        <Text style={[styles.when, styles.right]}>{this.state.lastUpdate}</Text>
-        <TouchableOpacity style={styles.right}>
-          <Icon
-            name="cog"
-            size={30}
-            color={primaryColor}
-            style={styles.settingsBtn}
-            os
-          />
-        </TouchableOpacity>
+    const rightButtons = [
+      <TouchableOpacity
+        style={[styles.rightSwipeItem, styles.moreBtn]}
+        onPress={this.editConversation}
+      >
+        <Icon name="cog" os color={white} size={30} />
+      </TouchableOpacity>,
+      <TouchableOpacity
+        style={[styles.rightSwipeItem, styles.deleteBtn]}
+        onPress={this.deleteConversation}
+      >
+        <Icon name="close" os color={white} size={48} />
       </TouchableOpacity>
+    ];
+
+    return (
+      <Swipeable rightButtons={rightButtons}>
+        <TouchableOpacity style={styles.container} onPress={this.onPress}>
+          <View style={styles.content}>
+            <Text style={styles.users}>{this.state.title}</Text>
+            <Text style={styles.message}>{this.state.lastMessage}</Text>
+          </View>
+          <Text style={[styles.when, styles.right]}>
+            {this.state.lastUpdate}
+          </Text>
+        </TouchableOpacity>
+      </Swipeable>
     );
   }
 }
@@ -107,6 +162,10 @@ export default connect(mapStateToProps)(withNavigation(ConversationItem));
 // const primaryColor = "#ff09a3";
 const primaryColor = "lime";
 const white = "white";
+const darkGray = "#111";
+const gray = "#333";
+const lightGray = "#555";
+const red = "red";
 
 const styles = StyleSheet.create({
   container: {
@@ -137,8 +196,15 @@ const styles = StyleSheet.create({
     color: white,
     fontFamily: "source-code-pro"
   },
-  settingsBtn: {
-    padding: 10,
-    marginRight: -10
+  rightSwipeItem: {
+    flex: 1,
+    justifyContent: "center",
+    paddingLeft: 20
+  },
+  moreBtn: {
+    backgroundColor: gray
+  },
+  deleteBtn: {
+    backgroundColor: red
   }
 });
