@@ -14,7 +14,7 @@ import { connect } from "react-redux";
 
 class RecentMessages extends React.Component {
   render() {
-    const { channels } = this.props;
+    const { channels, users } = this.props;
     return (
       <SafeAreaView style={styles.container}>
         <ScrollView>
@@ -23,7 +23,7 @@ class RecentMessages extends React.Component {
               data={this.props.channels}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item }) => (
-                <ConversationItem conversation={item} />
+                <ConversationItem conversation={item} users={users} />
               )}
               ItemSeparatorComponent={() => <View style={styles.separator} />}
             />
@@ -48,7 +48,8 @@ class RecentMessages extends React.Component {
 
 const mapStateToProps = state => ({
   user: state.user,
-  channels: state.channels
+  channels: state.channels,
+  users: state.users
 });
 export default connect(mapStateToProps)(RecentMessages);
 

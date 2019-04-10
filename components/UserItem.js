@@ -11,22 +11,18 @@ export default class UserItem extends React.Component {
     lastMessage: ""
   };
 
-  componentWillUnmount() {
-    this.usersListener();
-    this.lastMessageListener();
-    this.channelListener();
-  }
-
   render() {
     const { user, selectUser, selected } = this.props;
 
     return (
       <TouchableOpacity style={styles.container} onPress={selectUser}>
-        <Text style={styles.message}>{`${user.fname} ${user.lname}`}</Text>
+        <Text style={styles.user}>{`${user.fname} ${user.lname} // ${
+          user.nickname
+        }`}</Text>
 
         {selected && (
           <Icon
-            name="checkmark-circle"
+            name="checkmark-circle-outline"
             size={30}
             color={primaryColor}
             style={styles.settingsBtn}
@@ -40,34 +36,24 @@ export default class UserItem extends React.Component {
 
 // const primaryColor = "#ff09a3";
 const primaryColor = "lime";
+const white = "white";
+const darkGray = "#111";
+const gray = "#333";
+const lightGray = "#555";
 
 const styles = StyleSheet.create({
   container: {
     height: 60,
     paddingLeft: 10,
     paddingRight: 10,
-    justifyContent: "center",
+    justifyContent: "space-between",
     flexDirection: "row",
     alignItems: "center"
     // backgroundColor: "#111"
   },
-  content: {
-    flex: 1,
-    flexDirection: "column"
-  },
-  right: { marginLeft: 5 },
-  when: {
-    color: "white",
-    fontFamily: "source-code-pro"
-  },
-  users: {
-    fontSize: 20,
-    color: primaryColor,
-    fontFamily: "source-code-pro"
-  },
-  message: {
+  user: {
     fontSize: 14,
-    color: "white",
+    color: white,
     fontFamily: "source-code-pro"
   },
   settingsBtn: {

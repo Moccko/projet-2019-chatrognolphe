@@ -25,14 +25,18 @@ import Icon from "../components/Icon";
 
 class Navigation extends React.Component {
   channelsListener = undefined;
+  usersListener = undefined;
 
   updateChannels = channelSnapshot => {
     const channels = [];
 
     if (!channelSnapshot.empty) {
       channelSnapshot.forEach(channel => {
+        // console.log(channel.data().users.map(user => user.id));
         channels.push({
           id: channel.id,
+          ref: channel.ref,
+          // users: channel.data().users.map(user => user.id),
           ...channel.data()
         });
       });
@@ -48,7 +52,7 @@ class Navigation extends React.Component {
   updateUsers = usersSnapshot => {
     const users = {};
     usersSnapshot.forEach(
-      user => (users[user.id] = { id: user.id, ...user.data() })
+      user => (users[user.id] = { id: user.id, ref: user.ref, ...user.data() })
     );
 
     this.props.dispatch({ type: "UPDATE_USERS", value: users });
@@ -157,6 +161,7 @@ class Navigation extends React.Component {
       },
       {
         initialRouteName: "RecentMessages",
+        headerTransitionPreset: "uikit",
         defaultNavigationOptions: {
           headerStyle: {
             backgroundColor: "#000"
