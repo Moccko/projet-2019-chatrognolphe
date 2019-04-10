@@ -10,7 +10,6 @@ import {
   KeyboardAvoidingView,
   Alert,
   Image,
-  TouchableWithoutFeedback,
   Keyboard
 } from "react-native";
 import SvgUri from "expo-svg-uri";

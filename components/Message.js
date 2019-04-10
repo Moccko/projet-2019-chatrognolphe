@@ -2,6 +2,7 @@ import React from "react";
 import { View, Image, Text, StyleSheet } from "react-native";
 import { connect } from "react-redux";
 import Moment from "moment";
+import SvgUri from "expo-svg-uri";
 
 class Message extends React.Component {
   renderTimestamp(message) {
@@ -12,6 +13,14 @@ class Message extends React.Component {
     );
   }
 
+  renderAvatar(user) {
+    return (
+      <View style={styles.avatarContainer}>
+        <SvgUri width="35" height="35" source={{ uri: user.avatar }} />
+      </View>
+    );
+  }
+
   render() {
     const { message, user, style, currentUser } = this.props;
     const isSender = message.sender === currentUser.id;
@@ -19,16 +28,20 @@ class Message extends React.Component {
     return (
       <View style={styles.container}>
         {isSender && this.renderTimestamp(message)}
-        <View
-          style={[styles.message, styles[isSender ? "sender" : "receiver"]]}
-        >
-          <Text style={[styles[`${style}Label`], styles.label]}>
-            {`${
-              user && user.nickname
-                ? user.nickname
-                : (user.fname + user.lname).toLowerCase()
-            }$ ${message.content}`}
-          </Text>
+        <View style={{ flexDirection: "row" }}>
+          {!isSender && this.renderAvatar(user)}
+          <View
+            style={[styles.message, styles[isSender ? "sender" : "receiver"]]}
+          >
+            <Text style={[styles[`${style}Label`], styles.label]}>
+              {`${
+                user && user.nickname
+                  ? user.nickname
+                  : (user.fname + user.lname).toLowerCase()
+              }$ ${message.content}`}
+            </Text>
+          </View>
+          {isSender && this.renderAvatar(user)}
         </View>
         {!isSender && this.renderTimestamp(message)}
       </View>
@@ -84,4 +97,8 @@ const styles = StyleSheet.create({
   time: {
     color: darkGrey
   }
+  // avatarContainer: {
+  //   width: 10,
+  //   height: 10
+  // }
 });

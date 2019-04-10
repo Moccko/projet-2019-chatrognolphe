@@ -111,7 +111,11 @@ class CreateChannel extends React.Component {
         />
         {this.state.selectedUsers.length > 0 && (
           <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={60}>
-            <TouchableOpacity style={styles.fab} onPress={this.createChannel}>
+            <TouchableOpacity
+              style={styles.fab}
+              onPress={this.createChannel}
+              pointerEvents="box-none"
+            >
               <Icon
                 name="send"
                 os
@@ -190,7 +194,8 @@ const styles = StyleSheet.create({
     bottom: 50,
     right: 25,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    zIndex: 1000
   },
   icon: {
     marginTop: 5,
