@@ -26,8 +26,8 @@ import EditConversation from "../components/EditConversation";
 import Icon from "../components/Icon";
 
 class Navigation extends React.Component {
-  channelsListener = undefined;
-  usersListener = undefined;
+  channelsListener = null;
+  usersListener = null;
 
   updateChannels = channelSnapshot => {
     const channels = [];
@@ -66,10 +66,10 @@ class Navigation extends React.Component {
 
     // if the user changed, unsubscribe from listeners and subscribe to new listeners
     if (oldUser !== user && user !== null) {
-      if (this.channelsListener !== undefined) {
+      if (this.channelsListener !== null) {
         this.channelsListener();
       }
-      if (this.usersListener !== undefined) {
+      if (this.usersListener !== null) {
         this.usersListener();
       }
 
@@ -200,8 +200,8 @@ class Navigation extends React.Component {
       }
     };
     if (this.props.channels) {
-      this.props.channels.forEach((channel, index) => {
-        drawerItems[`MessagesNavigator${index}`] = {
+      this.props.channels.forEach(channel => {
+        drawerItems[channel.id] = {
           screen: MessagesNavigator,
           navigationOptions: {
             title: "Messages récents",
@@ -229,7 +229,16 @@ class Navigation extends React.Component {
           fontFamily: "source-code-pro"
         }
       },
-      contentComponent: props => <Drawer {...props} />
+      contentComponent: props => (
+        <Drawer
+          {...props}
+          onItemPress={({ route, focused }) => {
+            // here we overwrite the function with a console.log + the original function
+            console.log(route);
+            props.onItemPress({ route, focused });
+          }}
+        />
+      )
     });
 
     const AuthNavigation = createAppContainer(AuthNavigator);

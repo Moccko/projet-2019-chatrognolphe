@@ -24,19 +24,27 @@ class Drawer extends React.Component {
   render() {
     return (
       <SafeAreaView style={styles.container}>
+        <View style={styles.top}>
+          <TouchableOpacity
+            style={[styles.btn, styles.btnLeft]}
+            onPress={this.editProfile}
+          >
+            <Icon name="person" os size={30} color="lime" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={this.logOut}>
+            <Icon name="log-out" os size={30} color="lime" />
+          </TouchableOpacity>
+        </View>
         <ScrollView>
-          <View style={styles.top}>
-            <TouchableOpacity
-              style={[styles.btn, styles.btnLeft]}
-              onPress={this.editProfile}
-            >
-              <Icon name="person" os size={30} color="lime" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={this.logOut}>
-              <Icon name="log-out" os size={30} color="lime" />
-            </TouchableOpacity>
-          </View>
-          <DrawerItems {...this.props} />
+          <DrawerItems
+            {...this.props}
+            onItemPress={({ route, focused }) => {
+              const { navigation, channels } = this.props;
+              navigation.navigate("Conversation", {
+                id: route.key
+              });
+            }}
+          />
         </ScrollView>
       </SafeAreaView>
     );
