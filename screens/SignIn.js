@@ -1,5 +1,7 @@
 import React from "react";
 import {
+  ScrollView,
+  View,
   TouchableOpacity,
   Image,
   Alert,
@@ -32,11 +34,10 @@ class SignIn extends React.Component {
       ...user.data()
     };
 
-    const action = {
+    this.props.dispatch({
       type: "LOG_IN",
       value: u
-    };
-    this.props.dispatch(action);
+    });
   };
 
   _signIn = () => {
@@ -61,58 +62,70 @@ class SignIn extends React.Component {
   };
 
   _signUp = () => {
-    this.props.navigation.navigate("SignUp_1");
+    this.props.navigation.navigate("SignUp");
   };
 
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={100}>
-          <Image
-            source={require("../assets/images/catTyping.gif")}
-            style={styles.image}
-          />
+        <ScrollView contentContainerStyle={styles.form}>
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoidingView}
+            behavior="padding"
+            keyboardVerticalOffset={88}
+          >
+            <Image
+              source={require("../assets/images/catTyping.gif")}
+              style={styles.image}
+            />
 
-          <Text style={styles.label}>Pseudo / email</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={text => (this.username = text.toLowerCase())}
-            returnKeyType="next"
-            onEndEditing={() => this.pwdInput.focus()}
-            autoCapitalize="none"
-            placeholder="an@nymo.us"
-            placeholderTextColor="#555"
-            keyboardAppearance="dark"
-            keyboardType="email-address"
-            textContentType="username"
-          />
+            <View>
+              <Text style={styles.label}>Pseudo / email</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={text => (this.username = text.toLowerCase())}
+                returnKeyType="next"
+                onSubmitEditing={({ nativeEvent }) => {
+                  if (!!nativeEvent.text) this.pwdInput.focus();
+                }}
+                autoCapitalize="none"
+                placeholder="an@nymo.us"
+                placeholderTextColor="#555"
+                keyboardAppearance="dark"
+                keyboardType="email-address"
+                textContentType="username"
+              />
+            </View>
 
-          <Text style={styles.label}>Mot de passe</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={text => (this.password = md5(text).toString())}
-            secureTextEntry
-            onEndEditing={this._signIn}
-            returnKeyType="go"
-            ref={ref => (this.pwdInput = ref)}
-            placeholder="Incrackable"
-            placeholderTextColor="#555"
-            keyboardAppearance="dark"
-            textContentType="password"
-          />
+            <View>
+              <Text style={styles.label}>Mot de passe</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={text => (this.password = md5(text).toString())}
+                secureTextEntry
+                onSubmitEditing={({ nativeEvent }) => {
+                  if (nativeEvent.text) this._signIn();
+                }}
+                returnKeyType="go"
+                ref={ref => (this.pwdInput = ref)}
+                placeholder="Incrackable"
+                placeholderTextColor="#555"
+                keyboardAppearance="dark"
+                textContentType="password"
+              />
+            </View>
 
-          <TouchableOpacity onPress={this._forgotPwd}>
-            <Text style={styles.forgotPwd}>Mot de passe oublié ?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.signIn} onPress={this._signIn}>
-            <Text style={styles.signInLabel}>Entrer dans la matrice</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.signUp} onPress={this._signUp}>
-            <Text style={styles.signUpLabel}>Devenir un hacker</Text>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
+            <TouchableOpacity onPress={this._forgotPwd}>
+              <Text style={styles.forgotPwd}>Mot de passe oublié ?</Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </ScrollView>
+        <TouchableOpacity style={styles.signIn} onPress={this._signIn}>
+          <Text style={styles.signInLabel}>Entrer dans la matrice</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.signUp} onPress={this._signUp}>
+          <Text style={styles.signUpLabel}>Devenir un hacker</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -127,7 +140,15 @@ const black = "black";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: black,
+    backgroundColor: black
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  form: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center"
   },

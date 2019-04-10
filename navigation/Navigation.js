@@ -2,21 +2,26 @@ import React from "react";
 import {
   createStackNavigator,
   createDrawerNavigator,
-  createAppContainer,
-  DrawerItems,
-  DrawerItem
+  createAppContainer
 } from "react-navigation";
-import RecentMessages from "../screens/RecentMessages";
-import Conversation from "../screens/Conversation";
+
+import { DB } from "../data/Database";
+
 import SignIn from "../screens/SignIn";
 import SignUp from "../screens/SignUp";
+import SignUp_Options from "../screens/SignUp_Options";
+import EditProfile from "../screens/EditProfile";
+
+import RecentMessages from "../screens/RecentMessages";
+import Conversation from "../screens/Conversation";
+import CreateChannel from "../screens/CreateChannel";
+
 import { connect } from "react-redux";
-import Icon from "../components/Icon";
-import { ScrollView, View, ActivityIndicator, Text } from "react-native";
-import { DB } from "../data/Database";
+import { View, ActivityIndicator, StyleSheet, Vibration } from "react-native";
+
 import Drawer from "../components/Drawer";
 import CreateMessage from "../components/CreateMessage";
-import CreateChannel from "../screens/CreateChannel";
+import Icon from "../components/Icon";
 
 class Navigation extends React.Component {
   channelsListener = undefined;
@@ -33,6 +38,7 @@ class Navigation extends React.Component {
       });
     }
 
+    Vibration.vibrate(500, false);
     this.props.dispatch({
       type: "UPDATE_CHANNELS",
       value: channels
@@ -51,6 +57,8 @@ class Navigation extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const oldUser = prevProps.user;
     const { user } = this.props;
+
+    // if the user changed, unsubscribe from listeners and subscribe to new listeners
     if (oldUser !== user && user !== null) {
       if (this.channelsListener !== undefined) {
         this.channelsListener();
@@ -60,7 +68,7 @@ class Navigation extends React.Component {
       }
 
       this.channelsListener = DB.collection("channels")
-        .where("users", "array-contains", DB.collection("users").doc(user.id))
+        .where("users", "array-contains", user.ref)
         .onSnapshot(this.updateChannels);
 
       this.usersListener = DB.collection("users").onSnapshot(this.updateUsers);
@@ -84,7 +92,19 @@ class Navigation extends React.Component {
         SignUp: {
           screen: SignUp,
           navigationOptions: {
-            title: "Créer un compte"
+            title: "S'inscrire"
+          }
+        },
+        SignUp_Options: {
+          screen: SignUp_Options,
+          navigationOptions: {
+            title: "Informations personnelles"
+          }
+        },
+        EditProfile: {
+          screen: EditProfile,
+          navigationOptions: {
+            title: "Autres informations"
           }
         }
       },
@@ -99,6 +119,9 @@ class Navigation extends React.Component {
           headerTitleStyle: {
             fontFamily: "source-code-pro"
             // fontWeight: 'bold',
+          },
+          headerBackTitleStyle: {
+            fontFamily: "source-code-pro"
           }
         }
       }
@@ -124,6 +147,12 @@ class Navigation extends React.Component {
           navigationOptions: ({ navigation }) => ({
             title: navigation.getParam("title")
           })
+        },
+        EditProfile: {
+          screen: EditProfile,
+          navigationOptions: {
+            title: "Modifier son profil"
+          }
         }
       },
       {
@@ -137,6 +166,9 @@ class Navigation extends React.Component {
           headerTitleStyle: {
             fontFamily: "source-code-pro"
             // fontWeight: 'bold',
+          },
+          headerBackTitleStyle: {
+            fontFamily: "source-code-pro"
           }
         }
       }
@@ -144,8 +176,9 @@ class Navigation extends React.Component {
 
     const drawerItems = {
       RecentMessages: {
-        screen: RecentMessages,
+        screen: MessagesNavigator,
         navigationOptions: {
+          title: "Messages récents",
           drawerIcon: ({ focused, tintColor }) => (
             <Icon name="home" color={tintColor} size={20} os />
           )
@@ -154,9 +187,10 @@ class Navigation extends React.Component {
     };
     if (this.props.channels) {
       this.props.channels.forEach((channel, index) => {
-        drawerItems[index] = {
+        drawerItems[`MessagesNavigator${index}`] = {
           screen: MessagesNavigator,
           navigationOptions: {
+            title: "Messages récents",
             drawerIcon: ({ focused, tintColor }) => (
               <Icon name="mail" color={tintColor} size={20} os />
             )
@@ -166,6 +200,7 @@ class Navigation extends React.Component {
     }
 
     const AppNavigator = createDrawerNavigator(drawerItems, {
+      initialRouteName: "RecentMessages",
       drawerPosition: "right",
       drawerBackgroundColor: "black",
       drawerType: "slide",
@@ -192,14 +227,7 @@ class Navigation extends React.Component {
       return this.props.channels !== null ? (
         <AppNavigation />
       ) : (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "black"
-          }}
-        >
+        <View style={styles.container}>
           <ActivityIndicator size="large" color="white" />
         </View>
       );
@@ -213,3 +241,13 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps)(Navigation);
+
+const black = "black";
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: black
+  }
+});

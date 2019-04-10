@@ -1,4 +1,5 @@
 import React from "react";
+import { SafeAreaView, StatusBar } from "react-native";
 import Navigation from "./navigation/Navigation";
 import { Font } from "expo";
 import { Provider } from "react-redux";
@@ -19,6 +20,7 @@ export default class App extends React.Component {
     return (
       this.state.fontLoaded && (
         <Provider store={Store}>
+          <StatusBar barStyle="light-content" />
           <Navigation />
         </Provider>
       )

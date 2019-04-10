@@ -8,10 +8,13 @@ import {
   StyleSheet
 } from "react-native";
 import Icon from "./Icon";
-import { DrawerItems, DrawerItem } from "react-navigation";
+import { DrawerItems, DrawerItem, withNavigation } from "react-navigation";
 import { connect } from "react-redux";
 
 class Drawer extends React.Component {
+  editProfile = () => {
+    this.props.navigation.navigate("EditProfile");
+  };
   logOut = () => {
     this.props.dispatch({
       type: "LOG_OUT"
@@ -23,11 +26,14 @@ class Drawer extends React.Component {
       <SafeAreaView style={styles.container}>
         <ScrollView>
           <View style={styles.top}>
-            <TouchableOpacity>
-              <Icon name="person" os size={36} color="lime" />
+            <TouchableOpacity
+              style={[styles.btn, styles.btnLeft]}
+              onPress={this.editProfile}
+            >
+              <Icon name="person" os size={30} color="lime" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={this.logOut}>
-              <Icon name="log-out" os size={36} color="lime" />
+            <TouchableOpacity style={styles.btn} onPress={this.logOut}>
+              <Icon name="log-out" os size={30} color="lime" />
             </TouchableOpacity>
           </View>
           <DrawerItems {...this.props} />
@@ -41,11 +47,14 @@ const mapStateToProps = state => ({
   channels: state.channels
 });
 
-export default connect(mapStateToProps)(Drawer);
+export default connect(mapStateToProps)(withNavigation(Drawer));
 
+const white = "white";
+const darkGray = "#111";
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: darkGray
   },
   top: {
     flexDirection: "row",
@@ -54,7 +63,10 @@ const styles = StyleSheet.create({
     padding: 5,
     justifyContent: "flex-end"
   },
-  test: {
-    color: "white"
+  btn: {
+    padding: 5
+  },
+  btnLeft: {
+    marginRight: 15
   }
 });

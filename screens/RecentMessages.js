@@ -1,12 +1,12 @@
 // TODO : FlatList won't update with the right content
 import React from "react";
 import {
-  View,
   Text,
+  ScrollView,
+  View,
   FlatList,
   Dimensions,
   StyleSheet,
-  StatusBar,
   SafeAreaView
 } from "react-native";
 import ConversationItem from "../components/ConversationItem";
@@ -14,15 +14,33 @@ import { connect } from "react-redux";
 
 class RecentMessages extends React.Component {
   render() {
+    const { channels } = this.props;
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <FlatList
-          data={this.props.channels}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <ConversationItem conversation={item} />}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
+        <ScrollView>
+          {channels.length ? (
+            <FlatList
+              data={this.props.channels}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <ConversationItem conversation={item} />
+              )}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+            />
+          ) : (
+            <Text
+              style={{
+                color: "white",
+                textAlign: "center",
+                margin: 15,
+                fontSize: 18
+              }}
+            >
+              Vous n'avez pas encore de discussion. Créez-en une avec un être
+              humain !
+            </Text>
+          )}
+        </ScrollView>
       </SafeAreaView>
     );
   }

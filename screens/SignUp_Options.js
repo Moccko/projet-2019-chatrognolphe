@@ -18,55 +18,41 @@ import DatePicker from "react-native-datepicker";
 
 import { Auth, DB } from "../data/Database";
 
-export default class SignUp extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      date: new Date()
-    };
-  }
+export default class SignUp_Options extends React.Component {
+  state = {
+    date: new Date()
+  };
 
   //variables pour les ref du premier render()
-  refsurname = "";
-  reffname = "";
-  refbday = "";
+  refsurname = null;
+  refbday = null;
+
   //variables pour insertion bdd
   email = this.props.navigation.getParam("email");
   fname = "";
   lname = "";
   bday = "";
-  //pwd = this.props.getParam("pwd");
-  confirmPwd = "";
+  pwd = this.props.navigation.getParam("pwd");
 
-  _dirSignUpOption = () => {
-    this.props.navigation.navigate("SignUp_3", {
-      email: "Mum@mo.fr"
-    });
+  addDB = (bday, fname, lname) => {
+    DB.collection("users")
+      .add({
+        email: this.email,
+        bday,
+        fname,
+        lname,
+        pwd: this.pwd
+      })
+      .then(user => {
+        this.props.navigation.navigate("EditProfile", { user });
+      });
   };
 
-  _addDB = (bday, fname, lname) => {
-    DB.collection("users").add({
-      bday: bday,
-      email: this.props.navigation.getParam("email"),
-      fname: fname,
-      lname: lname,
-      nickname: "apres",
-      phone: "apres",
-      pwd: this.props.navigation.getParam("pwd")
-    });
-  };
-  _signUp = () => {
-    //this._dirSignUpOption()
-    //return
+  signUp = () => {
     //Gestion des champs erronés :
     this.bday === undefined
       ? Alert.alert("Erreur", "Entrez une date de naissance valide ")
-      : this._addDB(this.bday, this.fname, this.lname);
-    this.props.navigation.navigate("SignUp_3", {"email":this.email});
-  };
-
-  _signIn = () => {
-    this.props.navigation.navigate("SignIn");
+      : this.addDB(this.bday, this.fname, this.lname);
   };
 
   render() {
@@ -77,40 +63,22 @@ export default class SignUp extends React.Component {
             behavior="position"
             keyboardVerticalOffset={100}
           >
-            <TouchableOpacity
-              style={[styles.btn, styles.btnSecondary]}
-              onPress={this._signIn}
-            >
-              <Text style={styles.btnSecondaryLb}>Je suis déjà un hacker</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.btn, styles.btnFb]}>
-              <Ionicons
-                name="logo-facebook"
-                color="#3b5998"
-                size={20}
-                style={{ marginRight: 10 }}
-              />
-              <Text style={styles.btnFbLb}>Hacker Facebook</Text>
-            </TouchableOpacity>
             <Text style={styles.h2}>Mes informations (cryptées)</Text>
 
             <View>
               <Text style={styles.label}>Prénom</Text>
               <TextInput
                 style={styles.input}
-                ref={ref => {
-                  this.reffname = ref;
+                onSubmitEditing={({ nativeEvent }) => {
+                  if (!!nativeEvent.text) this.refsurname.focus();
                 }}
-                onSubmitEditing={() => {
-                  this.refsurname.focus();
-                }}
-                blurOnSubmit={false}
                 onChangeText={text => (this.fname = text)}
                 returnKeyType="next"
                 placeholder="Mickael"
                 placeholderTextColor="#555"
                 keyboardAppearance="dark"
                 keyboardType="default"
+                enablesReturnKeyAutomatically
               />
             </View>
             <View>
@@ -121,13 +89,13 @@ export default class SignUp extends React.Component {
                   this.refsurname = ref;
                 }}
                 //onSubmitEditing={() => this.refbday.focus()}
-                blurOnSubmit={false}
                 onChangeText={text => (this.lname = text)}
                 returnKeyType="next"
                 placeholder="Vendetta"
                 placeholderTextColor="#555"
                 keyboardAppearance="dark"
-                keyboardType={"default"}
+                keyboardType="default"
+                enablesReturnKeyAutomatically
               />
             </View>
             <View>
@@ -140,9 +108,9 @@ export default class SignUp extends React.Component {
                 showIcon={true}
                 date={this.state.date} //initial date from state
                 mode="date" //The enum of date, datetime and time
-                format="DD-MM-YYYY"
-                minDate="01-01-1901"
-                maxDate="01-01-2100"
+                format="YYYY-MM-DD"
+                minDate="1901-01-01"
+                maxDate="2100-01-01"
                 confirmBtnText="Confirm"
                 cancelBtnText="Cancel"
                 onDateChange={date => {
@@ -153,7 +121,7 @@ export default class SignUp extends React.Component {
             </View>
           </KeyboardAvoidingView>
 
-          <TouchableOpacity style={styles.btnPrimary} onPress={this._signUp}>
+          <TouchableOpacity style={styles.btnPrimary} onPress={this.signUp}>
             <Text style={styles.btnPrimaryLb}>Devenir un hacker</Text>
           </TouchableOpacity>
         </ScrollView>

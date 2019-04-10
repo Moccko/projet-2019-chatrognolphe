@@ -3,16 +3,23 @@ import { View, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "./Icon";
 
 export default class CreateMessage extends React.Component {
+  createChannel = () => {
+    this.props.navigation.navigate("CreateChannel");
+  };
+
   render() {
-    const { navigation } = this.props;
     return (
       <View>
-        <TouchableOpacity onPress={() => navigation.navigate("CreateChannel")}>
-          <Icon name="create" os size={36} color="lime" />
+        <TouchableOpacity onPress={this.createChannel} style={styles.btn}>
+          <Icon name="create" os size={30} color="lime" />
         </TouchableOpacity>
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  btn: {
+    marginRight: 15
+  }
+});
