@@ -93,15 +93,7 @@ class Conversation_Options extends React.Component {
             placeholderTextColor={lightGray}
           />
         </View>
-        <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={60}>
-          <TouchableOpacity
-            //style={styles.fab}
-            onPress={this.sendNewListUsers}
-            pointerEvents="box-none"
-          >
-            <Icon name="send" os color="white" size={36} style={styles.icon} />
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
+        <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={60} />
         <FlatList
           data={Object.values(this.state.filteredUsers).filter(
             u => u.id !== user.id
@@ -116,6 +108,19 @@ class Conversation_Options extends React.Component {
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={this.sendNewListUsers}
+          pointerEvents="box-none"
+        >
+          <Icon
+            name="send"
+            os
+            size={36}
+            style={styles.icon}
+            color={Platform.OS === "ios" ? "white" : primaryColor}
+          />
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -234,18 +239,36 @@ const styles = StyleSheet.create({
     margin: 5,
     fontFamily: "source-code-pro"
   },
-  fab: {
-    position: "absolute",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: primaryColor,
-    bottom: 50,
-    right: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000
-  },
+  // fab: {
+  //   position: "absolute",
+  //   width: 60,
+  //   height: 60,
+  //   borderRadius: 30,
+  //   backgroundColor: primaryColor,
+  //   bottom: 50,
+  //   right: 25,
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  //   zIndex: 1000
+  // },
+  fab: Platform.select({
+    ios: {
+      position: "absolute",
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: primaryColor,
+      bottom: 50,
+      right: 25,
+      justifyContent: "center",
+      alignItems: "center"
+    },
+    android: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center"
+    }
+  }),
   icon: {
     marginTop: 5,
     marginRight: 3
