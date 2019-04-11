@@ -45,12 +45,10 @@ class Conversation extends React.Component {
   };
 
   componentDidMount() {
-    const id = this.props.navigation.getParam("id");
-
-    this.conversation = DB.collection("channels").doc(id);
+    this.conversation = this.props.navigation.getParam("channel");
 
     const messagesRef = DB.collection("messages")
-      .where("channel", "==", this.conversation)
+      .where("channel", "==", this.conversation.ref)
       .orderBy("sent", "asc");
 
     // Listen to updates on this conversation
@@ -78,7 +76,7 @@ class Conversation extends React.Component {
       DB.collection("messages")
         .add({
           content: messageInput,
-          channel: this.conversation,
+          channel: this.conversation.ref,
           sender: this.props.user.ref,
           sent: Admin.Timestamp.now()
         })

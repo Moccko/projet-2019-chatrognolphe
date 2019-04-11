@@ -17,9 +17,10 @@ class ConversationItem extends React.Component {
   };
 
   onPress = () => {
-    this.props.navigation.navigate("Conversation", {
+    const { navigation, conversation } = this.props;
+    navigation.navigate("Conversation", {
       title: this.state.title,
-      id: this.props.conversation.id
+      channel: conversation
     });
   };
 
@@ -64,7 +65,7 @@ class ConversationItem extends React.Component {
 
   editConversation = () => {
     const { conversation, navigation } = this.props;
-    navigation.navigate("Conversation_Options", { id: conversation.id });
+    navigation.navigate("Conversation_Options", { channel: conversation });
   };
 
   deleteConversation = () => {

@@ -4,7 +4,9 @@ import Icon from "./Icon";
 
 export default class EditConversation extends React.Component {
   editChannel = () => {
-    this.props.navigation.navigate("Conversation_Options");
+    const { navigation } = this.props;
+    const channel = navigation.getParam("channel");
+    navigation.navigate("Conversation_Options", { channel });
   };
 
   render() {
