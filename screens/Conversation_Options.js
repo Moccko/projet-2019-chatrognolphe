@@ -235,11 +235,11 @@ const styles = StyleSheet.create({
     fontFamily: "source-code-pro"
   },
   fab: {
+    position: "absolute",
     width: 60,
     height: 60,
     borderRadius: 30,
     backgroundColor: primaryColor,
-    position: "absolute",
     bottom: 50,
     right: 25,
     justifyContent: "center",

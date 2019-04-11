@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  Platform
+} from "react-native";
 import Icon from "../components/Icon";
 import Moment from "moment";
 import { withNavigation } from "react-navigation";
@@ -147,9 +154,47 @@ class ConversationItem extends React.Component {
             <Text style={styles.users}>{this.state.title}</Text>
             <Text style={styles.message}>{this.state.lastMessage}</Text>
           </View>
-          <Text style={[styles.when, styles.right]}>
-            {this.state.lastUpdate}
-          </Text>
+          {Platform.OS === "android" && (
+            <View style={{ flexDirection: "column", justifyContent: "center" }}>
+              <View style={{ flexDirection: "row" }}>
+                <TouchableOpacity
+                  style={styles.androidNoSwipeBtn}
+                  onPress={this.editConversation}
+                >
+                  <Icon
+                    name="cog"
+                    os
+                    color={white}
+                    size={23}
+                    style={styles.androidIcon}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.androidNoSwipeBtn}
+                  onPress={this.deleteConversation}
+                >
+                  <Icon
+                    name="close"
+                    os
+                    color={white}
+                    size={32}
+                    style={styles.androidIcon}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View>
+                <Text style={[styles.when, styles.right]}>
+                  {this.state.lastUpdate}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {Platform.OS === "ios" && (
+            <Text style={[styles.when, styles.right]}>
+              {this.state.lastUpdate}
+            </Text>
+          )}
         </TouchableOpacity>
       </Swipeable>
     );
@@ -207,5 +252,13 @@ const styles = StyleSheet.create({
   },
   deleteBtn: {
     backgroundColor: red
+  },
+  androidNoSwipeBtn: {
+    flex: 0,
+    justifyContent: "center"
+  },
+  androidIcon: {
+    alignSelf: "flex-end",
+    marginRight: 5
   }
 });

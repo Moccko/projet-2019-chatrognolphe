@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   TextInput,
+  Platform,
   KeyboardAvoidingView
 } from "react-native";
 import UserItem from "../components/UserItem";
@@ -119,7 +120,7 @@ class CreateChannel extends React.Component {
               <Icon
                 name="send"
                 os
-                color="white"
+                color={Platform.OS === "ios" ? "white" : primaryColor}
                 size={36}
                 style={styles.icon}
               />
@@ -185,18 +186,24 @@ const styles = StyleSheet.create({
     margin: 5,
     fontFamily: "source-code-pro"
   },
-  fab: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: primaryColor,
-    position: "absolute",
-    bottom: 50,
-    right: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000
-  },
+  fab: Platform.select({
+    ios: {
+      position: "absolute",
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: primaryColor,
+      bottom: 50,
+      right: 25,
+      justifyContent: "center",
+      alignItems: "center"
+    },
+    android: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center"
+    }
+  }),
   icon: {
     marginTop: 5,
     marginRight: 3
