@@ -5,7 +5,7 @@ import Moment from "moment";
 import SvgUri from "expo-svg-uri";
 
 class Message extends React.Component {
-  renderTimestamp(message) {
+  static renderTimestamp(message) {
     return (
       <Text style={styles.time}>
         {Moment(message.sent.seconds, "X").format("HH:mm")}
@@ -13,37 +13,59 @@ class Message extends React.Component {
     );
   }
 
-  renderAvatar(user) {
+  static renderAvatar(user) {
     return (
-      <View style={styles.avatarContainer}>
-        <SvgUri width="35" height="35" source={{ uri: user.avatar }} />
-      </View>
+      <SvgUri
+        width="35"
+        height="35"
+        source={{ uri: user.avatar }}
+        style={styles.avatar}
+      />
     );
   }
 
   render() {
-    const { message, user, style, currentUser } = this.props;
+    const { message, user, currentUser } = this.props;
     const isSender = message.sender === currentUser.id;
 
     return (
       <View style={styles.container}>
-        {isSender && this.renderTimestamp(message)}
-        <View style={{ flexDirection: "row" }}>
-          {!isSender && this.renderAvatar(user)}
-          <View
-            style={[styles.message, styles[isSender ? "sender" : "receiver"]]}
-          >
-            <Text style={[styles[`${style}Label`], styles.label]}>
-              {`${
-                user && user.nickname
-                  ? user.nickname
-                  : (user.fname + user.lname).toLowerCase()
-              }$ ${message.content}`}
-            </Text>
-          </View>
-          {isSender && this.renderAvatar(user)}
+        {isSender && Message.renderTimestamp(message)}
+        <View
+          style={[styles.contentContainer, isSender && styles.senderContainer]}
+        >
+          {!isSender && Message.renderAvatar(user)}
+          {message.content ? (
+            <View
+              style={[
+                styles.message,
+                isSender ? styles.sender : styles.receiver
+              ]}
+            >
+              <Text
+                style={[
+                  isSender ? styles.senderLabel : styles.receiverLabel,
+                  styles.label
+                ]}
+              >
+                {`${
+                  user && user.nickname
+                    ? user.nickname
+                    : (user.fname + user.lname).toLowerCase()
+                }$ ${message.content}`}
+              </Text>
+            </View>
+          ) : (
+            <Image
+              source={{ uri: message.gif }}
+              style={[
+                styles.gif,
+                { width: message.width, height: message.height }
+              ]}
+            />
+          )}
         </View>
-        {!isSender && this.renderTimestamp(message)}
+        {!isSender && Message.renderTimestamp(message)}
       </View>
     );
   }
@@ -70,13 +92,27 @@ const styles = StyleSheet.create({
   message: {
     margin: 1,
     padding: 10,
-    borderRadius: 25,
+    borderRadius: 25
+  },
+  contentContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
     maxWidth: "80%"
+  },
+  senderContainer: {
+    // flexDirection: "row",
+    // alignItems: "flex-end",
+    // backgroundColor: "red"
   },
   sender: {
     // height: 75,
     backgroundColor: lightGrey,
-    alignSelf: "flex-end"
+    alignSelf: "flex-end",
+    justifyContent: "flex-end"
+  },
+  receiver: {
+    backgroundColor: primaryColor,
+    alignSelf: "flex-start"
   },
   label: {
     fontFamily: "source-code-pro",
@@ -86,19 +122,19 @@ const styles = StyleSheet.create({
     color: white,
     textAlign: "right"
   },
-  receiver: {
-    backgroundColor: primaryColor,
-    alignSelf: "flex-start"
-  },
   receiverLabel: {
-    color: "black",
+    color: black,
     textAlign: "left"
   },
   time: {
     color: darkGrey
+  },
+  avatar: {
+    marginRight: 3,
+    marginBottom: 3
+  },
+  gif: {
+    borderRadius: 25,
+    alignSelf: "flex-end"
   }
-  // avatarContainer: {
-  //   width: 10,
-  //   height: 10
-  // }
 });

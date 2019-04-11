@@ -37,8 +37,7 @@ class ConversationItem extends React.Component {
     return users
       .filter(val => val !== user.id)
       .reduce(
-        (acc, val, ind) =>
-          `${acc}${ind === 0 ? "" : ", "}${allUsers[val].fname}`,
+        (acc, val, ind) => `${acc}${ind > 0 && ", "}${allUsers[val].fname}`,
         ""
       );
   }

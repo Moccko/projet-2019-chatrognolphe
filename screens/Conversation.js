@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { DB, Admin } from "../data/Database";
 import Message from "../components/Message";
+import GiphyCarousel from "../components/GiphyCarousel";
 import Icon from "../components/Icon";
 import Moment from "moment";
 import { connect } from "react-redux";
@@ -26,7 +27,8 @@ class Conversation extends React.Component {
 
   state = {
     conversation: [],
-    messageInput: ""
+    messageInput: "",
+    showAddons: false
   };
 
   updateMessages = messagesSnapshot => {
@@ -44,7 +46,8 @@ class Conversation extends React.Component {
     );
   };
 
-  componentDidMount() {
+  constructor(props) {
+    super(props);
     this.conversation = this.props.navigation.getParam("channel");
 
     const messagesRef = DB.collection("messages")
@@ -131,8 +134,19 @@ class Conversation extends React.Component {
             ))}
         </ScrollView>
         <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={88}>
+          {this.state.showAddons && (
+            <GiphyCarousel
+              channel={this.conversation.ref}
+              closeCarousel={() => this.setState({ showAddons: false })}
+            />
+          )}
           <View style={styles.inputArea}>
-            <TouchableOpacity style={styles.inputAddon}>
+            <TouchableOpacity
+              style={styles.inputAddon}
+              onPress={() =>
+                this.setState({ showAddons: !this.state.showAddons })
+              }
+            >
               <Icon name="add" color="#555" size={40} os />
             </TouchableOpacity>
             <TextInput
@@ -204,5 +218,12 @@ const styles = StyleSheet.create({
     color: lightGrey,
     textAlign: "center",
     margin: 5
+  },
+  addonsShown: {
+    position: "relative"
+  },
+  addonsHidden: {
+    position: "relative",
+    top: 15
   }
 });

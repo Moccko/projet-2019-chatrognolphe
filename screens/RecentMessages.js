@@ -1,8 +1,6 @@
-// TODO : FlatList won't update with the right content
 import React from "react";
 import {
   Text,
-  ScrollView,
   View,
   FlatList,
   Dimensions,
@@ -42,7 +40,7 @@ const mapStateToProps = state => ({
 });
 export default connect(mapStateToProps)(RecentMessages);
 
-const primaryColor = "#ff09a3";
+const primaryColor = "lime";
 const white = "white";
 const black = "black";
 const gray = "#333";
@@ -63,9 +61,10 @@ const styles = StyleSheet.create({
     // marginLeft: "14%"
   },
   fallbackText: {
-    color: white,
+    color: primaryColor,
     textAlign: "center",
     margin: 15,
-    fontSize: 18
+    fontSize: 18,
+    fontFamily: "source-code-pro"
   }
 });
